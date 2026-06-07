@@ -20,10 +20,17 @@ class Comment extends Model
         return $this->belongsTo(Post::class);
     }
 
-    public function replies()
-    {
-        return $this->hasMany(Reply::class)->latest();
-    }
+    // Un commentaire peut avoir plusieurs réponses
+public function replies()
+{
+    return $this->hasMany(Comment::class, 'parent_id')->latest();
+}
+
+// Un commentaire peut appartenir à un commentaire parent
+public function parent()
+{
+    return $this->belongsTo(Comment::class, 'parent_id');
+}
 
     public function getMentions(): array
     {

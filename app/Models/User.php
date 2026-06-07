@@ -51,4 +51,9 @@ class User extends Authenticatable
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=6366f1&color=fff&size=128';
     }
+    // Relation avec les posts aimés par l'utilisateur
+public function likedPosts()
+{
+    return $this->belongsToMany(\App\Models\Post::class, 'likes')->withTimestamps();
+}
 }

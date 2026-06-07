@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle($request, \Closure $next)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Accès réservé aux administrateurs.');
+        if (auth()->check() && auth()->user()->is_admin) {
+            return $next($request);
         }
-        return $next($request);
+
+        abort(403, 'Seul l\'administrateur de Bellevieshop peut publier.');
     }
 }

@@ -16,6 +16,10 @@
     class="admin-nav {{ request()->routeIs('admin.comments') ? 'active' : '' }}">
     <i class="fas fa-comments"></i> Commentaires
   </a>
+  <a href="{{ route('admin.orders.index') }}"
+    class="admin-nav {{ request()->routeIs('admin.orders.index') ? 'active' : '' }}">
+    <i class="fas fa-shopping-cart"></i> Commandes
+  </a>
   <div class="admin-side-label" style="margin-top:1.5rem">Site</div>
   <a href="{{ route('home') }}" class="admin-nav">
     <i class="fas fa-arrow-up-right-from-square"></i> Voir le site

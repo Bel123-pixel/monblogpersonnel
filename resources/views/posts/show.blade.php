@@ -1,220 +1,138 @@
 @extends('layouts.app')
+
 @section('title', $post->title)
+
 @section('content')
-<div class="post-single">
+<div style="max-width: 760px; margin: 2.5rem auto; padding: 0 1rem;">
+    <a href="{{ route('home') }}" style="text-decoration: none; color: #4f6d58; font-weight: 600; display: inline-block; margin-bottom: 1.5rem;">
+        <i class="fas fa-arrow-left"></i> Retour aux articles
+    </a>
 
-  <div class="post-single-kicker">
-    <i class="fas fa-file-lines"></i> Article
-  </div>
-  <h1 class="post-single-title">{{ $post->title }}</h1>
-
-  <div class="post-single-meta">
-    <img src="{{ $post->user->avatar_url }}" alt="">
-    <div class="meta-info">
-      <strong><a href="{{ route('profile', $post->user->username) }}" style="color:inherit">{{ $post->user->name }}</a></strong>
-      <span>{{ $post->created_at->format('d M Y') }} · {{ $post->views }} vues · {{ $post->comments->count() }} commentaire{{ $post->comments->count()>1?'s':'' }}</span>
-    </div>
-    @auth @if(auth()->id()===$post->user_id||auth()->user()->is_admin)
-    <div class="post-single-actions">
-      <a href="{{ route('posts.edit', $post) }}" class="btn btn-outline btn-sm">
-        <i class="fas fa-pen"></i> Modifier
-      </a>
-      <form action="{{ route('posts.destroy', $post) }}" method="POST" style="display:inline">
-        @csrf 
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger btn-sm" data-confirm="Supprimer définitivement ?">
-          <i class="fas fa-trash"></i>
-        </button>
-      </form>
-    </div>
-    @endif @endauth
-  </div>
-
-  @if($post->image_url)
-  <img src="{{ $post->image_url }}" alt="{{ $post->title }}" class="post-hero-img">
-  @endif
-
-  <div class="post-body">{!! nl2br(e($post->content)) !!}</div>
-
-  {{-- SECTION COMMENTAIRES --}}
-  <div class="comments-wrap">
-    <h2 class="comments-title">
-      <i class="fas fa-comments" style="color:var(--blue);margin-right:.4rem"></i>
-      {{ $post->comments->count() }} commentaire{{ $post->comments->count()>1?'s':'' }}
-    </h2>
-
-    {{-- Formulaire d'ajout de commentaire principal --}}
-    @auth
-    <div class="comment-form-card">
-      <form action="{{ route('comments.store', $post) }}" method="POST">
-        @csrf
-        <div style="display:flex;gap:.75rem">
-          <img src="{{ auth()->user()->avatar_url }}" alt="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;margin-top:.2rem">
-          <div style="flex:1">
-            <textarea name="body" class="form-control @error('body') is-invalid @enderror" rows="3" placeholder="Écrivez un commentaire... @username pour mentionner" data-mentions data-max="1000" style="margin-bottom:.65rem">{{ old('body') }}</textarea>
-            @error('body')<span class="invalid-feedback">{{ $message }}</span>@enderror
-            <button type="submit" class="btn btn-blue btn-sm">
-              <i class="fas fa-paper-plane"></i> Publier
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-    @else
-    <div style="text-align:center;padding:1.75rem;background:var(--blue-light);border-radius:var(--r);margin-bottom:1.5rem">
-      <p style="color:var(--muted);margin-bottom:.85rem">Connectez-vous pour commenter</p>
-      <a href="{{ route('login') }}" class="btn btn-blue btn-sm">Se connecter</a>
-    </div>
-    @endauth
-
-    {{-- Liste des commentaires --}}
-    <div>
-      @forelse($post->comments as $comment)
-      <div class="comment-item" id="c{{ $comment->id }}">
-        <div class="comment-head">
-          <img src="{{ $comment->user->avatar_url }}" alt="">
-          <div>
-            <div class="comment-author">
-              <a href="{{ route('profile', $comment->user->username) }}" style="color:inherit">
-                {{ $comment->user->name }}
-              </a>
-            </div>
-            <div class="comment-time">{{ $comment->created_at->diffForHumans() }}</div>
-          </div>
-          @auth @if(auth()->id()===$comment->user_id||auth()->user()->is_admin||auth()->id()===$post->user_id)
-          <div style="margin-left:auto;display:flex;gap:.3rem">
-            @if(auth()->id()===$comment->user_id)
-            <button class="btn btn-ghost btn-sm btn-icon-only edit-toggle" data-id="{{ $comment->id }}" data-type="comment" title="Modifier">
-              <i class="fas fa-pen" style="font-size:.78rem"></i>
-            </button>
-            @endif
-            <form action="{{ route('comments.destroy', $comment) }}" method="POST">
-              @csrf 
-              @method('DELETE')
-              <button type="submit" class="btn btn-danger btn-sm btn-icon-only" data-confirm="Supprimer ce commentaire ?" title="Supprimer">
-                <i class="fas fa-trash" style="font-size:.78rem"></i>
-              </button>
-            </form>
-          </div>
-          @endif @endauth
-        </div>
-
-        {{-- Contenu du commentaire --}}
-        <div id="comment-disp-{{ $comment->id }}" class="comment-body">
-          {!! $comment->formatted_body !!}
-        </div>
-
-        {{-- Formulaire d'ÉDITION de commentaire (CORRIGÉ) --}}
-        @auth @if(auth()->id()===$comment->user_id)
-        <div id="comment-edit-{{ $comment->id }}" class="comment-edit-form-block" style="display:none;margin-top:.65rem">
-          <form action="{{ route('comments.update', $comment) }}" method="POST">
-            @csrf 
-            @method('PUT')
-            <textarea name="body" class="form-control" rows="2" data-mentions style="margin-bottom:.5rem">{{ $comment->body }}</textarea>
-            <div style="display:flex;gap:.4rem">
-              <button type="submit" class="btn btn-blue btn-sm">Enregistrer</button>
-              <button type="button" class="btn btn-ghost btn-sm edit-toggle" data-id="{{ $comment->id }}" data-type="comment">Annuler</button>
-            </div>
-          </form>
-        </div>
-        @endif @endauth
-
-        <div class="comment-actions">
-          @auth
-          <button class="reply-btn" data-cid="{{ $comment->id }}">
-            <i class="fas fa-reply"></i> Répondre
-          </button>
-          @endauth
-          @if($comment->replies->count())
-          <span style="font-size:.76rem;color:var(--muted2)">
-            {{ $comment->replies->count() }} réponse{{ $comment->replies->count()>1?'s':'' }}
-          </span>
-          @endif
-        </div>
-
-        {{-- RÉPONSES --}}
-        <div class="replies-block">
-          @foreach($comment->replies as $reply)
-          <div class="reply-item" id="r{{ $reply->id }}">
-            <div class="comment-head" style="margin-bottom:.5rem">
-              <img src="{{ $reply->user->avatar_url }}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover">
-              <div>
-                <div class="comment-author" style="font-size:.84rem">
-                  <a href="{{ route('profile', $reply->user->username) }}" style="color:inherit">
-                    {{ $reply->user->name }}
-                  </a>
+    <article style="background: #ffffff; border-radius: 28px; box-shadow: 0 24px 70px rgba(31, 83, 58, 0.08); overflow: hidden; border: 1px solid #e7f3ea; margin-bottom: 2rem;">
+        <div style="padding: 1.6rem 1.6rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: #f5fbf6; border-bottom: 1px solid #e8f4e9;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <img src="{{ $post->user->avatar_url ?? 'https://ui-avatars.com/api/?name=U&background=74c69d&color=fff' }}" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #c8edcd;">
+                <div>
+                    <div style="font-size: 1rem; font-weight: 700; color: #1f4033;">{{ $post->user->name ?? 'Auteur' }}</div>
+                    <div style="font-size: 0.88rem; color: #6b7d70;">{{ $post->created_at->diffForHumans() }}</div>
                 </div>
-                <div class="comment-time">{{ $reply->created_at->diffForHumans() }}</div>
-              </div>
-              @auth @if(auth()->id()===$reply->user_id||auth()->user()->is_admin||auth()->id()===$comment->user_id)
-              <div style="margin-left:auto;display:flex;gap:.3rem">
-                @if(auth()->id()===$reply->user_id)
-                <button class="btn btn-ghost btn-sm btn-icon-only edit-toggle" data-id="{{ $reply->id }}" data-type="reply">
-                  <i class="fas fa-pen" style="font-size:.76rem"></i>
+            </div>
+            <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
+                <button onclick="openOrderModal({{ $post->id }})" style="background: #2f7d4f; color: white; border: none; padding: 0.85rem 1.25rem; border-radius: 999px; font-weight: 700; cursor: pointer;">
+                    🛒 Commander
                 </button>
-                @endif
-                <form action="{{ route('replies.destroy', $reply) }}" method="POST">
-                  @csrf 
-                  @method('DELETE')
-                  <button type="submit" class="btn btn-danger btn-sm btn-icon-only" data-confirm="Supprimer ?">
-                    <i class="fas fa-trash" style="font-size:.76rem"></i>
-                  </button>
-                </form>
-              </div>
-              @endif @endauth
+                @auth
+                    @if(auth()->user()->is_admin)
+                        <a href="{{ route('posts.edit', $post) }}" style="background: #f3f4f6; color: #1f2937; border: none; padding: 0.85rem 1rem; border-radius: 999px; font-weight: 700; text-decoration: none;">✏️ Modifier</a>
+                        <form action="{{ route('posts.destroy', $post) }}" method="POST" style="margin:0;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Supprimer cette publication ?')" style="background: #fee2e2; color: #991b1b; border: none; padding: 0.85rem 1rem; border-radius: 999px; font-weight: 700; cursor: pointer;">🗑️ Supprimer</button>
+                        </form>
+                    @endif
+                @endauth
             </div>
 
-            <div id="reply-disp-{{ $reply->id }}" class="comment-body" style="font-size:.9rem">
-              {!! $reply->formatted_body !!}
-            </div>
-
-            {{-- Formulaire d'ÉDITION de réponse (CORRIGÉ) --}}
-            @auth @if(auth()->id()===$reply->user_id)
-            <div id="reply-edit-{{ $reply->id }}" class="reply-edit-form-block" style="display:none;margin-top:.5rem">
-              <form action="{{ route('replies.update', $reply) }}" method="POST">
-                @csrf 
-                @method('PUT')
-                <textarea name="body" class="form-control" rows="2" data-mentions style="margin-bottom:.4rem">{{ $reply->body }}</textarea>
-                <div style="display:flex;gap:.4rem">
-                  <button type="submit" class="btn btn-blue btn-sm">Enregistrer</button>
-                  <button type="button" class="btn btn-ghost btn-sm edit-toggle" data-id="{{ $reply->id }}" data-type="reply">Annuler</button>
+            <div id="orderModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+                <div style="background:white; padding:2rem; border-radius:16px; max-width:500px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+                    <h3 style="margin-top:0; color:#1f2937;">Passer une commande</h3>
+                    <form id="orderForm" method="POST" action="">
+                        @csrf
+                        <div style="margin-bottom:1.5rem;">
+                            <label style="display:block; margin-bottom:0.5rem; font-weight:600; color:#374151;">Message ou détails (optionnel)</label>
+                            <textarea name="message" rows="4" placeholder="Ex: Taille M, couleur noire..." style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:8px; font-family:inherit;"></textarea>
+                        </div>
+                        <div style="display:flex; gap:0.75rem;">
+                            <button type="submit" style="flex:1; background:#2f7d4f; color:white; padding:0.85rem; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Envoyer la commande</button>
+                            <button type="button" onclick="closeOrderModal()" style="flex:1; background:#e5e7eb; color:#1f2937; padding:0.85rem; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Annuler</button>
+                        </div>
+                    </form>
                 </div>
-              </form>
             </div>
-            @endif @endauth
-          </div>
-          @endforeach
 
-          {{-- Formulaire pour AJOUTER une réponse --}}
-          @auth
-          <div id="rf-{{ $comment->id }}" class="reply-form" style="display:none;">
-            <form action="{{ route('replies.store', $comment) }}" method="POST">
-              @csrf
-              <div style="display:flex;gap:.6rem">
-                <img src="{{ auth()->user()->avatar_url }}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;margin-top:.2rem">
-                <div style="flex:1">
-                  <textarea name="body" class="form-control" rows="2" placeholder="Répondre... @username pour mentionner" data-mentions style="margin-bottom:.45rem"></textarea>
-                  <div style="display:flex;gap:.4rem">
-                    <button type="submit" class="btn btn-blue btn-sm">
-                      <i class="fas fa-paper-plane"></i> Répondre
-                    </button>
-                    <button type="button" class="btn btn-ghost btn-sm reply-btn" data-cid="{{ $comment->id }}">Annuler</button>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-          @endauth
+            <script>
+                function openOrderModal(postId) {
+                    @auth
+                        document.getElementById('orderForm').action = '/posts/' + postId + '/order';
+                        document.getElementById('orderModal').style.display = 'flex';
+                    @else
+                        window.location.href = '{{ route("login") }}';
+                    @endauth
+                }
+                function closeOrderModal() {
+                    document.getElementById('orderModal').style.display = 'none';
+                }
+            </script>
         </div>
-      </div>
-      @empty
-      <div class="empty" style="padding:2rem">
-        <i class="empty-icon fas fa-comment-slash"></i>
-        <p>Aucun commentaire. Soyez le premier !</p>
-      </div>
-      @endforelse
-    </div>
-  </div>
+
+        @if($post->image_url)
+            <div style="overflow: hidden;">
+                <img src="{{ $post->image_url }}" style="width: 100%; max-height: 420px; object-fit: cover;">
+            </div>
+        @endif
+
+        <div style="padding: 1.8rem 1.6rem 2rem;">
+            <h1 style="font-size: 2.4rem; margin: 0 0 1rem; color: #1f3f2c;">{{ $post->title }}</h1>
+            <p style="color: #505f54; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1.75rem;">{{ $post->content }}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                <span style="background: #fbe8ef; color: #a12d59; padding: 0.65rem 1rem; border-radius: 999px; font-size: 0.9rem;">#mode</span>
+                <span style="background: #fbe8ef; color: #a12d59; padding: 0.65rem 1rem; border-radius: 999px; font-size: 0.9rem;">#vetements</span>
+                <span style="background: #fbe8ef; color: #a12d59; padding: 0.65rem 1rem; border-radius: 999px; font-size: 0.9rem;">#style</span>
+            </div>
+            @if($post->images->isNotEmpty())
+                <div style="margin-top:1.25rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+                    @foreach($post->images as $img)
+                        <div style="width:calc(33% - 0.5rem); background:#fafafa; border-radius:12px; overflow:hidden; border:1px solid #eef6ee;">
+                            <img src="{{ $img->url }}" style="width:100%; height:140px; object-fit:cover; display:block;">
+                            @if($img->caption)
+                                <div style="padding:0.45rem 0.6rem; font-size:0.85rem; color:#495a4f;">{{ $img->caption }}</div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </article>
+
+    <section style="background: #ffffff; border-radius: 28px; padding: 2rem; border: 1px solid #e7f3ea; box-shadow: 0 18px 45px rgba(44, 103, 64, 0.06);">
+        <h3 style="margin-top: 0; color: #1f4334; margin-bottom: 1.5rem; font-size: 1.4rem;">Discussions</h3>
+
+        @auth
+            <form method="POST" action="{{ route('comments.store', $post) }}" style="margin-bottom: 2rem;">
+                @csrf
+                <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+                    <textarea name="content" id="comment-area" rows="3" placeholder="Écrivez un commentaire ou une question sur le look..." style="flex: 1; min-width: 220px; padding: 1rem; border-radius: 18px; border: 1px solid #d9e9da; font-family: inherit; font-size: 1rem;" required></textarea>
+                    <button type="submit" style="background: #2f7d4f; color: white; border: none; padding: 0.95rem 1.35rem; border-radius: 18px; font-weight: 700; cursor: pointer;">Envoyer</button>
+                </div>
+            </form>
+        @else
+            <div style="margin-bottom: 2rem; padding: 1.4rem 1.2rem; background: #f0fbef; border-radius: 20px; border: 1px solid #d9eed8; color: #3b5947;">
+                <p style="margin: 0 0 0.75rem; font-weight: 700;">Connectez-vous pour commenter et participer.</p>
+                <a href="{{ route('login') }}" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #2f7d4f; color: white; padding: 0.85rem 1rem; border-radius: 16px; text-decoration: none; font-weight: 700;">Connexion</a>
+            </div>
+        @endauth
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            @forelse($post->comments as $comment)
+                <div style="background: #f4fbf6; padding: 1.2rem 1.3rem; border-radius: 18px; border: 1px solid #e3f2e7;">
+                    <div style="display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.65rem; align-items: flex-start;">
+                        <div>
+                            <div style="font-weight: 700; color: #1f4334;">{{ $comment->user->name ?? 'Client' }}</div>
+                            <div style="font-size: 0.84rem; color: #6c7a6d;">{{ $comment->created_at ? $comment->created_at->diffForHumans() : 'À l’instant' }}</div>
+                        </div>
+                        @if($comment->user_id == 1 || ($comment->user?->is_admin ?? false))
+                            <span style="background: #2f7d4f; color: #fff; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.78rem;">Vendeur</span>
+                        @endif
+                    </div>
+                    <p style="margin: 0 0 0.85rem; color: #425146; line-height: 1.7;">{{ $comment->body }}</p>
+                    <div style="text-align: right;">
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('comment-area').value = '@{{ $comment->user->name }} '; document.getElementById('comment-area').focus();" style="color: #2f7d4f; font-size: 0.9rem; font-weight: 700; text-decoration: none;">Répondre</a>
+                    </div>
+                </div>
+            @empty
+                <p style="color: #6b7b6f; text-align: center; margin: 0;">Aucun commentaire pour l'instant. Soyez le premier à donner votre avis.</p>
+            @endforelse
+        </div>
+    </section>
 </div>
 @endsection
-

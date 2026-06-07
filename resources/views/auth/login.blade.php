@@ -1,44 +1,65 @@
 @extends('layouts.app')
-@section('title', 'Connexion — BellevieShop')
+
+@section('title', 'Espace Client - Bellevieshop')
+
 @section('content')
-<div class="auth-page">
-  <div class="auth-card">
-    <div class="auth-icon"><i class="fas fa-bolt"></i></div>
-    <h1 class="auth-title">Bon retour !</h1>
-    <p class="auth-sub">Connectez-vous à votre compte BellevieShop</p>
+<div style="display: flex; gap: 2rem; max-width: 900px; margin: 3rem auto; padding: 0 1rem; flex-wrap: wrap;">
 
-    <form action="{{ route('login') }}" method="POST">
-      @csrf
-      <div class="form-group">
-        <label class="form-label">Adresse email</label>
-        <input type="email" name="email"
-          class="form-control @error('email') is-invalid @enderror"
-          value="{{ old('email') }}" placeholder="vous@exemple.com" autofocus>
-        @error('email')<span class="invalid-feedback">{{ $message }}</span>@enderror
-      </div>
-      <div class="form-group">
-        <label class="form-label">Mot de passe</label>
-        <input type="password" name="password"
-          class="form-control @error('password') is-invalid @enderror"
-          placeholder="••••••••">
-        @error('password')<span class="invalid-feedback">{{ $message }}</span>@enderror
-      </div>
-      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem">
-        <input type="checkbox" id="remember" name="remember"
-          style="width:15px;height:15px;accent-color:var(--blue)">
-        <label for="remember" style="font-size:.84rem;color:var(--muted);cursor:pointer">
-          Se souvenir de moi
-        </label>
-      </div>
-      <button type="submit" class="btn btn-blue btn-lg" style="width:100%;justify-content:center">
-        <i class="fas fa-arrow-right-to-bracket"></i> Se connecter
-      </button>
-    </form>
+    <div class="login-card" style="flex: 1; min-width: 350px; background: #ffffff; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-top:0;">🔐 Connexion Client</h2>
+        <p style="color: #64748b; margin-bottom: 2rem; font-size: 0.9rem;">Accédez à votre compte pour liker et commander.</p>
 
-    <div class="auth-footer">
-      Pas encore de compte ? <a href="{{ route('register') }}">S'inscrire gratuitement</a>
+        @if ($errors->any())
+            <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                @foreach ($errors->all() as $error)
+                    <p style="margin: 0.25rem 0;">• {{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight: 600; font-size: 0.85rem; color: #334155;">Adresse Email</label>
+                <input type="email" name="email" placeholder="client@example.com" value="{{ old('email') }}" style="width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box;" required>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight: 600; font-size: 0.85rem; color: #334155;">Mot de passe</label>
+                <input type="password" name="password" placeholder="••••••••" style="width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box;" required>
+            </div>
+            <button type="submit" style="width: 100%; background: #1e293b; color: white; padding: 0.75rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Se connecter</button>
+        </form>
     </div>
-  </div>
+
+    <div class="register-card" style="flex: 1; min-width: 350px; background: #ffffff; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #ff4757; margin-top:0;">🛍️ Créer un compte Client</h2>
+        <p style="color: #64748b; margin-bottom: 2rem; font-size: 0.9rem;">Inscrivez-vous en 10 secondes pour interagir sur le blog.</p>
+
+        <form method="POST" action="{{ route('register') }}">
+            @csrf
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight: 600; font-size: 0.85rem; color: #334155;">Nom complet</label>
+                <input type="text" name="name" placeholder="Ex: Elnis Sossou" style="width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box;" required>
+            </div>
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight: 600; font-size: 0.85rem; color: #334155;">Nom d'utilisateur</label>
+                <input type="text" name="username" placeholder="ex: elnis_sossou" style="width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box;" required>
+            </div>
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight: 600; font-size: 0.85rem; color: #334155;">Adresse Email</label>
+                <input type="email" name="email" placeholder="nom@gmail.com" style="width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box;" required>
+            </div>
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight: 600; font-size: 0.85rem; color: #334155;">Mot de passe</label>
+                <input type="password" name="password" placeholder="Minimum 4 caractères" style="width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box;" required>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight: 600; font-size: 0.85rem; color: #334155;">Confirmer le mot de passe</label>
+                <input type="password" name="password_confirmation" placeholder="Répétez le mot de passe" style="width: 100%; padding: 0.75rem; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box;" required>
+            </div>
+            <button type="submit" style="width: 100%; background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; padding: 0.75rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Créer mon compte Client</button>
+        </form>
+    </div>
+
 </div>
 @endsection
-

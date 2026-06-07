@@ -1,12 +1,14 @@
 <?php
-
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Like extends Model
+class Order extends Model
 {
-    protected $fillable = ['user_id', 'post_id'];
+    use HasFactory;
+
+    protected $fillable = ['user_id', 'post_id', 'message', 'status'];
 
     public function user()
     {
@@ -17,6 +19,4 @@ class Like extends Model
     {
         return $this->belongsTo(Post::class);
     }
-
 }
-
