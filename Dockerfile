@@ -1,30 +1,41 @@
 FROM php:8.2-apache
 
-# 1. Installe les dépendances système nécessaires pour PostgreSQL
+# Dépendances système
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    libzip-dev \
     zip \
     unzip \
     git \
-    && docker-php-ext-install pdo pdo_pgsql pgsql
+    && docker-php-ext-install pdo pdo_pgsql pgsql zip
 
-# 2. Active le module Apache rewrite (indispensable pour Laravel)
+# Apache rewrite
 RUN a2enmod rewrite
 
-# 3. Configure le dossier public de Laravel comme racine du site
+# Racine Apache → public/
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
+    /etc/apache2/sites-available/*.conf \
+    /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# 4. Copie les fichiers du projet
 WORKDIR /var/www/html
+
+# Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copie du projet
 COPY . .
 
-# 5. Installe Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Install PHP deps
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# 6. Donne les permissions aux dossiers de stockage
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Permissions
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# Script de démarrage
+COPY docker-start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 EXPOSE 80
+CMD ["/usr/local/bin/start.sh"]

@@ -1,14 +1,13 @@
 services:
   - type: web
-    name: bellevieshop
-    env: php
+    name: monblog-pulse
+    env: docker
     region: frankfurt
     plan: free
-    buildCommand: "./render-build.sh"
-    startCommand: "php artisan serve --host=0.0.0.0 --port=$PORT"
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: APP_NAME
-        value: BellevieShop
+        value: "Pulse"
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -18,17 +17,27 @@ services:
       - key: APP_URL
         sync: false
       - key: DB_CONNECTION
-        value: mysql
+        value: pgsql
       - key: DB_HOST
-        sync: false
+        fromDatabase:
+          name: monblog-db
+          property: host
       - key: DB_PORT
-        value: 3306
+        fromDatabase:
+          name: monblog-db
+          property: port
       - key: DB_DATABASE
-        sync: false
+        fromDatabase:
+          name: monblog-db
+          property: database
       - key: DB_USERNAME
-        sync: false
+        fromDatabase:
+          name: monblog-db
+          property: user
       - key: DB_PASSWORD
-        sync: false
+        fromDatabase:
+          name: monblog-db
+          property: password
       - key: SESSION_DRIVER
         value: file
       - key: SESSION_LIFETIME
@@ -37,11 +46,12 @@ services:
         value: file
       - key: QUEUE_CONNECTION
         value: sync
-      - key: FILESYSTEM_DISK
-        value: cloudinary
-      - key: CLOUDINARY_URL
-        sync: false
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL
         value: error
+
+databases:
+  - name: monblog-db
+    plan: free
+    region: frankfurt
