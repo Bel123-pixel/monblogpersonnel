@@ -31,8 +31,9 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
+
 echo "=== Migrations ==="
-php artisan migrate --force
+php artisan migrate:fresh --force --seed || php artisan migrate --force
 
 echo "=== Storage link ==="
 php artisan storage:link || true
