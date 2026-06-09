@@ -47,6 +47,10 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute(): string
     {
         if ($this->avatar && $this->avatar !== 'default.png') {
+            // URL complète Cloudinary
+            if (str_starts_with($this->avatar, 'http')) {
+                return $this->avatar;
+            }
             return asset('storage/avatars/' . $this->avatar);
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=6366f1&color=fff&size=128';

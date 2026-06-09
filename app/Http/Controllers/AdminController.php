@@ -21,6 +21,8 @@ class AdminController extends Controller
             'posts'    => Post::count(),
             'comments' => Comment::count(),
             'lives'    => LiveStream::live()->count(),
+            'orders'   => \App\Models\Order::count(),
+            'pending'  => \App\Models\Order::where('status', 'pending')->count(),
         ];
         $recentUsers    = User::latest()->take(5)->get();
         $recentPosts    = Post::with('user')->latest()->take(5)->get();

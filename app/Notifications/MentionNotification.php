@@ -29,7 +29,7 @@ class MentionNotification extends Notification
             'from_avatar' => $this->mentionedBy->avatar_url,
             'content'     => \Illuminate\Support\Str::limit($this->content, 80),
             'type'        => 'mention',
-            'url'         => route('home'),
+            'url'         => route('posts.show', \App\Models\Post::find($this->refId)?->slug ?? '/'),
         ];
     }
 }

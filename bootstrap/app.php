@@ -14,6 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => AdminMiddleware::class,
         ]);
+
+        // Exclure login/register/logout du CSRF (env local)
+        $middleware->validateCsrfTokens(except: [
+            'login',
+            'register',
+            'logout',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -47,18 +47,18 @@ class Post extends Model
             return null;
         }
 
+        // URL complète (Cloudinary ou autre)
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+
         // Old uploads stored directly in public/uploads/...
         if (str_starts_with($this->image, 'uploads/')) {
             return asset($this->image);
         }
 
-        // If image stored as filename in storage/app/public/posts
-        if (! str_contains($this->image, '/')) {
-            return asset('storage/posts/' . $this->image);
-        }
-
-        // If image already contains a path (e.g., posts/...), return asset directly
-        return asset($this->image);
+        // Filename in storage/app/public/posts
+        return asset('storage/posts/' . $this->image);
     }
 
     public function incrementViews(): void

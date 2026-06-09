@@ -18,9 +18,17 @@
                 </div>
             </div>
             <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
-                <button onclick="openOrderModal({{ $post->id }})" style="background: #2f7d4f; color: white; border: none; padding: 0.85rem 1.25rem; border-radius: 999px; font-weight: 700; cursor: pointer;">
-                    🛒 Commander
-                </button>
+                @auth
+                    @if(!auth()->user()->is_admin)
+                        <button onclick="openOrderModal('{{ $post->slug }}')" style="background: #2f7d4f; color: white; border: none; padding: 0.85rem 1.25rem; border-radius: 999px; font-weight: 700; cursor: pointer;">
+                            🛒 Commander
+                        </button>
+                    @endif
+                @else
+                    <button onclick="openOrderModal('{{ $post->slug }}')" style="background: #2f7d4f; color: white; border: none; padding: 0.85rem 1.25rem; border-radius: 999px; font-weight: 700; cursor: pointer;">
+                        🛒 Commander
+                    </button>
+                @endauth
                 @auth
                     @if(auth()->user()->is_admin)
                         <a href="{{ route('posts.edit', $post) }}" style="background: #f3f4f6; color: #1f2937; border: none; padding: 0.85rem 1rem; border-radius: 999px; font-weight: 700; text-decoration: none;">✏️ Modifier</a>
@@ -100,9 +108,16 @@
         @auth
             <form method="POST" action="{{ route('comments.store', $post) }}" style="margin-bottom: 2rem;">
                 @csrf
-                <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
-                    <textarea name="content" id="comment-area" rows="3" placeholder="Écrivez un commentaire ou une question sur le look..." style="flex: 1; min-width: 220px; padding: 1rem; border-radius: 18px; border: 1px solid #d9e9da; font-family: inherit; font-size: 1rem;" required></textarea>
-                    <button type="submit" style="background: #2f7d4f; color: white; border: none; padding: 0.95rem 1.35rem; border-radius: 18px; font-weight: 700; cursor: pointer;">Envoyer</button>
+                <div style="display: flex; gap: 0.85rem; flex-wrap: wrap; position: relative;">
+                    <div style="flex: 1; min-width: 220px; position: relative;">
+                        <textarea name="content" id="comment-area" rows="3"
+                            placeholder="Écrivez un commentaire... Tapez @ pour mentionner quelqu'un"
+                            style="width: 100%; padding: 1rem; border-radius: 18px; border: 1px solid #d9e9da; font-family: inherit; font-size: 1rem; box-sizing: border-box;"
+                            required></textarea>
+                        <!-- Liste d'autocomplétion -->
+                        <div id="mention-list" style="display:none; position:absolute; bottom: calc(100% + 4px); left:0; background:#fff; border:1px solid #d1d5db; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:999; min-width:220px; overflow:hidden;"></div>
+                    </div>
+                    <button type="submit" style="background: #2f7d4f; color: white; border: none; padding: 0.95rem 1.35rem; border-radius: 18px; font-weight: 700; cursor: pointer; align-self: flex-start;">Envoyer</button>
                 </div>
             </form>
         @else
@@ -124,7 +139,7 @@
                             <span style="background: #2f7d4f; color: #fff; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.78rem;">Vendeur</span>
                         @endif
                     </div>
-                    <p style="margin: 0 0 0.85rem; color: #425146; line-height: 1.7;">{{ $comment->body }}</p>
+                    <p style="margin: 0 0 0.85rem; color: #425146; line-height: 1.7;">{!! $comment->formatted_body !!}</p>
                     <div style="text-align: right;">
                         <a href="#" onclick="event.preventDefault(); document.getElementById('comment-area').value = '@{{ $comment->user->name }} '; document.getElementById('comment-area').focus();" style="color: #2f7d4f; font-size: 0.9rem; font-weight: 700; text-decoration: none;">Répondre</a>
                     </div>
@@ -135,4 +150,101 @@
         </div>
     </section>
 </div>
+
+<style>
+.mention-link {
+    color: #2f7d4f;
+    font-weight: 700;
+    text-decoration: none;
+    background: #edf9ef;
+    padding: 0 4px;
+    border-radius: 4px;
+}
+.mention-link:hover { text-decoration: underline; }
+.mention-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #1f3f2c;
+    border-bottom: 1px solid #f0f5ef;
+}
+.mention-item:hover { background: #f0fbf1; }
+.mention-item img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+</style>
+
+<script>
+(function () {
+    const textarea   = document.getElementById('comment-area');
+    const list       = document.getElementById('mention-list');
+    if (!textarea || !list) return;
+
+    let mentionStart = -1;
+
+    textarea.addEventListener('input', function () {
+        const val    = textarea.value;
+        const cursor = textarea.selectionStart;
+
+        // Chercher le dernier @ avant le curseur
+        const before = val.substring(0, cursor);
+        const atIdx  = before.lastIndexOf('@');
+
+        if (atIdx === -1) { hideMentions(); return; }
+
+        const query = before.substring(atIdx + 1);
+
+        // Pas d'espace dans la query
+        if (/\s/.test(query)) { hideMentions(); return; }
+
+        mentionStart = atIdx;
+
+        if (query.length === 0) { hideMentions(); return; }
+
+        fetch(`{{ route('mention.search') }}?q=${encodeURIComponent(query)}`)
+            .then(r => r.json())
+            .then(users => {
+                if (!users.length) { hideMentions(); return; }
+                list.innerHTML = users.map(u =>
+                    `<div class="mention-item" data-username="${u.username}">
+                        <img src="${u.avatar_url}" alt="">
+                        <div>
+                            <strong>${u.name}</strong>
+                            <span style="color:#6b7c6f; font-size:0.8rem;"> @${u.username}</span>
+                        </div>
+                    </div>`
+                ).join('');
+                list.style.display = 'block';
+
+                list.querySelectorAll('.mention-item').forEach(item => {
+                    item.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        const username = this.dataset.username;
+                        const val      = textarea.value;
+                        const before   = val.substring(0, mentionStart);
+                        const after    = val.substring(textarea.selectionStart);
+                        textarea.value = before + '@' + username + ' ' + after;
+                        textarea.focus();
+                        hideMentions();
+                    });
+                });
+            });
+    });
+
+    textarea.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') hideMentions();
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!list.contains(e.target) && e.target !== textarea) hideMentions();
+    });
+
+    function hideMentions() {
+        list.style.display = 'none';
+        list.innerHTML = '';
+        mentionStart = -1;
+    }
+})();
+</script>
 @endsection

@@ -113,17 +113,19 @@ class AuthController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            // Supprimer l'ancienne photo si elle existe et que ce n'est pas celle par défaut
-            if ($user->avatar && $user->avatar !== 'default.png') {
-                Storage::delete('public/avatars/' . $user->avatar);
+            // Supprimer l'ancienne photo
+            if ($user->avatar && $user->avatar !== 'default.png' && !str_starts_with($user->avatar, 'http')) {
+                Storage::disk('public')->delete('avatars/' . $user->avatar);
             }
 
-            // Créer un nom unique pour le fichier
-            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $request->file('avatar')->extension();
-            
-            // Stocker l'image dans storage/app/public/avatars
-            $request->file('avatar')->storeAs('public/avatars', $filename);
-            $data['avatar'] = $filename;
+            if (config('filesystems.default') === 'cloudinary') {
+                $result = cloudinary()->upload($request->file('avatar')->getRealPath(), ['folder' => 'bellevieshop/avatars']);
+                $data['avatar'] = $result->getSecurePath();
+            } else {
+                $filename = 'avatar_' . $user->id . '_' . time() . '.' . $request->file('avatar')->extension();
+                Storage::disk('public')->putFileAs('avatars', $request->file('avatar'), $filename);
+                $data['avatar'] = $filename;
+            }
         }
 
         $user->update($data);

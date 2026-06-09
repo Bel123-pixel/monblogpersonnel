@@ -6,16 +6,6 @@ use Illuminate\Http\Request;
 
 class AdminOrderController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (!auth()->check() || !auth()->user()->is_admin) {
-                abort(403);
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
         $orders = Order::with(['user', 'post'])->latest()->paginate(15);

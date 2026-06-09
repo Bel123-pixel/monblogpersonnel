@@ -38,10 +38,14 @@ class PostController extends Controller
         $image = null;
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9\.\-_]/', '-', $file->getClientOriginalName());
-            // Store in storage/app/public/posts so it's accessible via storage link
-            $file->storeAs('public/posts', $fileName);
-            $image = $fileName; // store filename, accessor will resolve URL
+            if (config('filesystems.default') === 'cloudinary') {
+                $result = cloudinary()->upload($file->getRealPath(), ['folder' => 'bellevieshop/posts']);
+                $image = $result->getSecurePath();
+            } else {
+                $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9\.\-_]/', '-', $file->getClientOriginalName());
+                Storage::disk('public')->putFileAs('posts', $file, $fileName);
+                $image = $fileName;
+            }
         }
 
         Post::create([
@@ -102,31 +106,35 @@ class PostController extends Controller
             'status'  => 'nullable|in:draft,published',
         ]);
 
+        // Ne pas écraser l'image existante si aucune nouvelle photo n'est envoyée
+        unset($data['image']);
+
         if ($request->hasFile('image')) {
-            // Delete previous image whether it was stored in public/uploads or storage/app/public/posts
+            // Supprimer l'ancienne image
             if ($post->image) {
                 if (str_starts_with($post->image, 'uploads/')) {
                     $old = public_path($post->image);
-                    if (file_exists($old)) {
-                        @unlink($old);
-                    }
+                    if (file_exists($old)) @unlink($old);
+                } elseif (str_starts_with($post->image, 'http')) {
+                    // Cloudinary — on laisse, on uploade juste la nouvelle
                 } else {
-                    Storage::delete('public/posts/' . $post->image);
+                    Storage::disk('public')->delete('posts/' . $post->image);
                 }
             }
 
-            $filename = 'post_' . time() . '.' . $request->file('image')->extension();
-            $request->file('image')->storeAs('public/posts', $filename);
-            $data['image'] = $filename;
+            if (config('filesystems.default') === 'cloudinary') {
+                $result = cloudinary()->upload($request->file('image')->getRealPath(), ['folder' => 'bellevieshop/posts']);
+                $data['image'] = $result->getSecurePath();
+            } else {
+                $filename = 'post_' . time() . '.' . $request->file('image')->extension();
+                Storage::disk('public')->putFileAs('posts', $request->file('image'), $filename);
+                $data['image'] = $filename;
+            }
         }
 
         $post->update($data);
 
-        if (auth()->user()->is_admin) {
-            return redirect()->route('admin.posts')->with('success', 'Publication mise à jour !');
-        }
-
-        return redirect()->route('home')->with('success', 'Publication mise à jour !');
+        return redirect()->route('admin.posts')->with('success', 'Publication mise à jour !');
     }
 
     public function destroy(Post $post)

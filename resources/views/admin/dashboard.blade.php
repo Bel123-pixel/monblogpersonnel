@@ -7,10 +7,11 @@
     <h1 class="admin-h1">Tableau de bord</h1>
     <div class="stat-grid">
       @foreach([
-        ['chip-blue',  'fas fa-users',     $stats['users'],    'Utilisateurs'],
-        ['chip-sky',   'fas fa-file-lines', $stats['posts'],    'Publications'],
-        ['chip-green', 'fas fa-comments',   $stats['comments'], 'Commentaires'],
-        ['chip-orange','fas fa-video',      $stats['lives'],    'Lives actifs'],
+        ['chip-blue',  'fas fa-users',          $stats['users'],    'Utilisateurs'],
+        ['chip-sky',   'fas fa-file-lines',      $stats['posts'],    'Publications'],
+        ['chip-green', 'fas fa-comments',        $stats['comments'], 'Commentaires'],
+        ['chip-orange','fas fa-shopping-cart',   $stats['orders'],   'Commandes total'],
+        ['chip-yellow','fas fa-clock',           $stats['pending'],  'Commandes en attente'],
       ] as [$chip, $icon, $val, $label])
       <div class="stat-card">
         <div class="stat-chip {{ $chip }}"><i class="{{ $icon }}"></i></div>

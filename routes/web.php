@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+
+// Autocomplétion @mention
+Route::get('/mention-search', [CommentController::class, 'mentionSearch'])->name('mention.search');
 // --- SYSTÈME D'AUTHENTIFICATION MANUEL POUR LA DÉMO ---
 
 // Formulaires (Vues)
@@ -75,6 +78,13 @@ Route::post('/logout', function(Request $request) {
     $request->session()->regenerateToken();
     return redirect('/');
 })->name('logout');
+
+// Profil utilisateur — edit AVANT {username} pour éviter le conflit
+Route::middleware('auth')->group(function () {
+    Route::get('/profile/edit', [App\Http\Controllers\AuthController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile/update', [App\Http\Controllers\AuthController::class, 'updateProfile'])->name('profile.update');
+});
+Route::get('/profile/{username}', [App\Http\Controllers\AuthController::class, 'profile'])->name('profile');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');

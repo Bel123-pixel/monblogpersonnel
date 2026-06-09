@@ -38,11 +38,12 @@ class OrderPlacedNotification extends Notification
      */
     public function toDatabase($notifiable)
     {
+        $post = \App\Models\Post::find($this->order->post_id);
         return [
-            'order_id' => $this->order->id,
-            'post_id' => $this->order->post_id,
-            'message' => 'Nouvelle commande reçue',
-            'url' => route('posts.show', $this->order->post_id ?? null),
+            'order_id'     => $this->order->id,
+            'post_id'      => $this->order->post_id,
+            'message'      => 'Nouvelle commande reçue pour "' . ($post?->title ?? 'une publication') . '"',
+            'url'          => route('admin.orders.index'),
             'from_user_id' => $this->order->user_id,
         ];
     }

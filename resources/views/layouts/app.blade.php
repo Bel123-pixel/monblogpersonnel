@@ -43,6 +43,7 @@
             @auth
                 @if(auth()->user()->is_admin)
                     <li><a href="{{ route('posts.create') }}" class="nav-link btn-publier"><i class="fas fa-plus-circle"></i> Publier</a></li>
+                    <li><a href="{{ route('admin.dashboard') }}" class="nav-link" style="background:#f0fdf4; color:#166534; padding:0.45rem 1rem; border-radius:999px; border:1px solid #bbf7d0;"><i class="fas fa-gauge"></i> Dashboard</a></li>
                 @endif
 
                 <li id="notifWrap" class="notif-wrap">
@@ -62,7 +63,13 @@
                     </div>
                 </li>
 
-                <li><span class="nav-link" style="color: #2f7d4f;"><i class="fas fa-user-circle"></i> {{ auth()->user()->name }}</span></li>
+                <li>
+                    <a href="{{ route('profile', auth()->user()->username) }}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:#2f7d4f; font-weight:600;">
+                        <img src="{{ auth()->user()->avatar_url }}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid #6ee7b7;">
+                        {{ auth()->user()->name }}
+                    </a>
+                </li>
+                <li><a href="{{ route('profile.edit') }}" class="nav-link" title="Modifier mon profil"><i class="fas fa-user-cog"></i></a></li>
                 <li><a href="#" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fas fa-sign-out-alt"></i></a></li>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
             @else
@@ -73,6 +80,20 @@
     </nav>
 
     <main>
+        @if(session('success'))
+            <div style="max-width:900px; margin: 1.25rem auto 0; padding: 0 1rem;">
+                <div style="background:#d1fae5; color:#065f46; padding:1rem 1.25rem; border-radius:14px; border:1px solid #6ee7b7; font-weight:600;">
+                    {{ session('success') }}
+                </div>
+            </div>
+        @endif
+        @if(session('error'))
+            <div style="max-width:900px; margin: 1.25rem auto 0; padding: 0 1rem;">
+                <div style="background:#fee2e2; color:#991b1b; padding:1rem 1.25rem; border-radius:14px; border:1px solid #fca5a5; font-weight:600;">
+                    {{ session('error') }}
+                </div>
+            </div>
+        @endif
         @yield('content')
     </main>
 
