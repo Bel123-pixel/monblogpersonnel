@@ -9,12 +9,12 @@ RUN apt-get update && apt-get install -y \
     git \
     && docker-php-ext-install pdo pdo_mysql mysqli pdo_pgsql pgsql zip mbstring
 
-RUN a2enmod rewrite
+#RUN a2enmod rewrite
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
-    /etc/apache2/sites-available/*.conf \
-    /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+#RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
+    #/etc/apache2/sites-available/*.conf \
+   # /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 WORKDIR /var/www/html
 
@@ -30,5 +30,4 @@ COPY docker-start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 
-EXPOSE 8080
 CMD ["/usr/local/bin/start.sh"]
