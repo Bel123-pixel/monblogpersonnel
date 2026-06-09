@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-echo "=== Création du .env ==="
+echo "=== PORT reçu : ${PORT} ==="
+
+# Création du .env
 cat > /var/www/html/.env << EOF
 APP_NAME="${APP_NAME:-Laravel}"
 APP_ENV="${APP_ENV:-production}"
@@ -23,12 +25,28 @@ LOG_CHANNEL="${LOG_CHANNEL:-stderr}"
 LOG_LEVEL="${LOG_LEVEL:-error}"
 EOF
 
-echo "=== Configuration port Apache : ${PORT:-8080} ==="
-# Réécrire complètement ports.conf
-echo "Listen ${PORT:-8080}" > /etc/apache2/ports.conf
+# Configuration Apache port dynamique
+APACHE_PORT="${PORT:-8080}"
+echo "=== Configuration Apache sur port : ${APACHE_PORT} ==="
 
-# Mettre à jour le VirtualHost
-sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT:-8080}>/" /etc/apache2/sites-available/000-default.conf
+# Réécrire ports.conf
+echo "Listen ${APACHE_PORT}" > /etc/apache2/ports.conf
+
+# Réécrire le VirtualHost complètement
+cat > /etc/apache2/sites-available/000-default.conf << VHOST
+<VirtualHost *:${APACHE_PORT}>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html/public
+
+    <Directory /var/www/html/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog \${APACHE_LOG_DIR}/error.log
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+VHOST
 
 echo "=== Config cache ==="
 php artisan config:cache
@@ -44,5 +62,5 @@ php artisan storage:link || true
 echo "=== Admin seeder ==="
 php artisan db:seed --class=AdminSeeder --force || true
 
-echo "=== Démarrage Apache sur port ${PORT:-8080} ==="
-apache2-foreground
+echo "=== Démarrage Apache sur port ${APACHE_PORT} ==="
+exec apache2-foreground
