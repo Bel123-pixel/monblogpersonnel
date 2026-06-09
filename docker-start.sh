@@ -1,8 +1,30 @@
 #!/bin/bash
 set -e
 
-echo "=== Génération clé ==="
-php artisan key:generate --force
+echo "=== Création du .env ==="
+cat > /var/www/html/.env << EOF
+APP_NAME="${APP_NAME:-Pulse}"
+APP_ENV="${APP_ENV:-production}"
+APP_KEY="${APP_KEY}"
+APP_DEBUG="${APP_DEBUG:-false}"
+APP_URL="${APP_URL:-http://localhost}"
+
+DB_CONNECTION="${DB_CONNECTION:-pgsql}"
+DB_HOST="${DB_HOST}"
+DB_PORT="${DB_PORT:-5432}"
+DB_DATABASE="${DB_DATABASE}"
+DB_USERNAME="${DB_USERNAME}"
+DB_PASSWORD="${DB_PASSWORD}"
+
+SESSION_DRIVER="${SESSION_DRIVER:-file}"
+SESSION_LIFETIME="${SESSION_LIFETIME:-120}"
+CACHE_STORE="${CACHE_STORE:-file}"
+QUEUE_CONNECTION="${QUEUE_CONNECTION:-sync}"
+FILESYSTEM_DISK="${FILESYSTEM_DISK:-local}"
+
+LOG_CHANNEL="${LOG_CHANNEL:-stderr}"
+LOG_LEVEL="${LOG_LEVEL:-error}"
+EOF
 
 echo "=== Config cache ==="
 php artisan config:cache
