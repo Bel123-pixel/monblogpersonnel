@@ -23,9 +23,12 @@ LOG_CHANNEL="${LOG_CHANNEL:-stderr}"
 LOG_LEVEL="${LOG_LEVEL:-error}"
 EOF
 
-echo "=== Configuration du port Apache ==="
-sed -i "s/Listen 80/Listen ${PORT:-8080}/g" /etc/apache2/ports.conf
-sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT:-8080}>/g" /etc/apache2/sites-available/000-default.conf
+echo "=== Configuration port Apache : ${PORT:-8080} ==="
+# Réécrire complètement ports.conf
+echo "Listen ${PORT:-8080}" > /etc/apache2/ports.conf
+
+# Mettre à jour le VirtualHost
+sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT:-8080}>/" /etc/apache2/sites-available/000-default.conf
 
 echo "=== Config cache ==="
 php artisan config:cache
@@ -41,5 +44,5 @@ php artisan storage:link || true
 echo "=== Admin seeder ==="
 php artisan db:seed --class=AdminSeeder --force || true
 
-echo "=== Démarrage Apache ==="
+echo "=== Démarrage Apache sur port ${PORT:-8080} ==="
 apache2-foreground
