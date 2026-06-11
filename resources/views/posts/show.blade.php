@@ -108,6 +108,12 @@
         @auth
             <form method="POST" action="{{ route('comments.store', $post) }}" style="margin-bottom: 2rem;">
                 @csrf
+                <!-- Bulle de citation : commentaire auquel on répond -->
+                <div id="reply-preview" style="display:none; background:#eaf5ee; border-left:4px solid #2f7d4f; border-radius:12px; padding:0.75rem 1rem; margin-bottom:0.65rem; position:relative;">
+                    <div style="font-size:0.8rem; color:#2f7d4f; font-weight:700; margin-bottom:0.25rem;" id="reply-preview-author"></div>
+                    <div style="font-size:0.9rem; color:#3a5042; line-height:1.5; white-space:pre-wrap; word-break:break-word;" id="reply-preview-body"></div>
+                    <button type="button" onclick="cancelReply()" style="position:absolute; top:0.5rem; right:0.65rem; background:none; border:none; color:#6b7d70; font-size:1.1rem; cursor:pointer; line-height:1;">✕</button>
+                </div>
                 <div style="display: flex; gap: 0.85rem; flex-wrap: wrap; position: relative;">
                     <div style="flex: 1; min-width: 220px; position: relative;">
                         <textarea name="content" id="comment-area" rows="3"
@@ -141,7 +147,11 @@
                     </div>
                     <p style="margin: 0 0 0.85rem; color: #425146; line-height: 1.7;">{!! $comment->formatted_body !!}</p>
                     <div style="text-align: right;">
-                        <a href="#" onclick="event.preventDefault(); document.getElementById('comment-area').value = '@{{ $comment->user->name }} '; document.getElementById('comment-area').focus();" style="color: #2f7d4f; font-size: 0.9rem; font-weight: 700; text-decoration: none;">Répondre</a>
+                        <a href="#"
+                           class="reply-btn"
+                           data-author="{{ '@'  . ($comment->user->name ?? 'Utilisateur') }}"
+                           data-body="{{ Str::limit(strip_tags($comment->body), 120) }}"
+                           style="color: #2f7d4f; font-size: 0.9rem; font-weight: 700; text-decoration: none;">Répondre</a>
                     </div>
                 </div>
             @empty
@@ -174,6 +184,44 @@
 .mention-item:hover { background: #f0fbf1; }
 .mention-item img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 </style>
+
+<script>
+function openReply(authorMention, commentBody) {
+    const area    = document.getElementById('comment-area');
+    const preview = document.getElementById('reply-preview');
+    const previewAuthor = document.getElementById('reply-preview-author');
+    const previewBody   = document.getElementById('reply-preview-body');
+
+    if (!area || !preview) return;
+
+    previewAuthor.textContent = authorMention;
+    previewBody.textContent   = commentBody;
+    preview.style.display     = 'block';
+
+    area.value = authorMention + ' ';
+    area.focus();
+    area.setSelectionRange(area.value.length, area.value.length);
+    area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelReply() {
+    const preview = document.getElementById('reply-preview');
+    if (preview) preview.style.display = 'none';
+    document.getElementById('reply-preview-author').textContent = '';
+    document.getElementById('reply-preview-body').textContent   = '';
+    const area = document.getElementById('comment-area');
+    if (area && area.value.startsWith('@')) area.value = '';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.reply-btn').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            openReply(this.dataset.author, this.dataset.body);
+        });
+    });
+});
+</script>
 
 <script>
 (function () {
