@@ -28,17 +28,58 @@
         .np-item img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
         .np-item-msg { font-size: 0.86rem; line-height: 1.4; }
         .np-item-time { font-size: 0.72rem; color: #6f7f72; margin-top: 0.35rem; }
+
+        /* ── Hamburger mobile ── */
+        .hamburger-btn { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 5px; width: 42px; height: 42px; background: none; border: 1px solid rgba(94,171,122,0.3); border-radius: 12px; cursor: pointer; padding: 0; }
+        .hamburger-btn span { display: block; width: 22px; height: 2px; background: #2f7d4f; border-radius: 2px; transition: all 0.3s ease; }
+        .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+        .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0.85rem 1.2rem; }
+            .hamburger-btn { display: flex; }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(255,255,255,0.98);
+                backdrop-filter: blur(12px);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem 1.5rem 1.5rem;
+                box-shadow: 0 16px 40px rgba(31,83,58,0.12);
+                border-top: 1px solid #e7f3ea;
+                gap: 0.5rem;
+                z-index: 999;
+            }
+            .nav-links.open { display: flex; }
+            .nav-links li { width: 100%; }
+            .nav-links .nav-link { display: block; padding: 0.65rem 0; font-size: 1rem; border-bottom: 1px solid #f0f7f1; }
+            .nav-links .btn-publier { display: inline-block; margin-top: 0.5rem; }
+            #notifWrap { position: relative; }
+            .notif-panel { width: calc(100vw - 2.4rem); right: -1.2rem; }
+        }
     </style>
 </head>
 <body>
 
-    <nav id="navbar" class="navbar">
+    <nav id="navbar" class="navbar" style="position: relative;">
         <a href="{{ route('home') }}" class="logo">
             <i class="fas fa-shopping-bag"></i>
             BellevieShop
         </a>
 
-        <ul class="nav-links">
+        <!-- Bouton hamburger mobile -->
+        <button class="hamburger-btn" id="hamburger" onclick="toggleMobile()" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <ul class="nav-links" id="navMenu">
             <li><a href="{{ route('home') }}" class="nav-link"><i class="fas fa-home"></i> Accueil</a></li>
             @auth
                 @if(auth()->user()->is_admin)
