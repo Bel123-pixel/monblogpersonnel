@@ -137,4 +137,60 @@ function submitLike(postId, el) {
     });
 }
 </script>
+
+<footer style="background: linear-gradient(135deg, #1a3a2a 0%, #0f2318 100%); color: #b6d9c3; margin-top: 3rem; padding: 3rem 2rem 1.5rem;">
+    <div style="max-width: 1120px; margin: 0 auto;">
+
+        <div style="display: flex; flex-wrap: wrap; gap: 2.5rem; justify-content: space-between; margin-bottom: 2.5rem;">
+
+            <!-- Logo + description -->
+            <div style="flex: 1; min-width: 220px; max-width: 340px;">
+                <a href="{{ route('home') }}" style="display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; margin-bottom: 1rem;">
+                    <i class="fas fa-shopping-bag" style="color: #4fbb87; font-size: 1.4rem;"></i>
+                    <span style="font-size: 1.4rem; font-weight: 800; color: #ffffff;">BellevieShop</span>
+                </a>
+                <p style="margin: 0; font-size: 0.93rem; line-height: 1.7; color: #8ab59a;">
+                    La boutique mode de HOUNTY — découvrez les dernières collections, looks et conseils style au quotidien.
+                </p>
+            </div>
+
+            <!-- Liens rapides -->
+            <div style="min-width: 150px;">
+                <h4 style="margin: 0 0 1rem; color: #ffffff; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em;">Navigation</h4>
+                <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem;">
+                    <li><a href="{{ route('home') }}" style="color: #8ab59a; text-decoration: none; font-size: 0.9rem; transition: color .2s;" onmouseover="this.style.color='#4fbb87'" onmouseout="this.style.color='#8ab59a'"><i class="fas fa-home" style="width:16px;"></i> Accueil</a></li>
+                    @auth
+                        <li><a href="{{ route('notifications.index') }}" style="color: #8ab59a; text-decoration: none; font-size: 0.9rem;" onmouseover="this.style.color='#4fbb87'" onmouseout="this.style.color='#8ab59a'"><i class="fas fa-bell" style="width:16px;"></i> Notifications</a></li>
+                        <li><a href="{{ route('profile', auth()->user()->username) }}" style="color: #8ab59a; text-decoration: none; font-size: 0.9rem;" onmouseover="this.style.color='#4fbb87'" onmouseout="this.style.color='#8ab59a'"><i class="fas fa-user" style="width:16px;"></i> Mon profil</a></li>
+                    @else
+                        <li><a href="{{ route('login') }}" style="color: #8ab59a; text-decoration: none; font-size: 0.9rem;" onmouseover="this.style.color='#4fbb87'" onmouseout="this.style.color='#8ab59a'"><i class="fas fa-sign-in-alt" style="width:16px;"></i> Connexion</a></li>
+                    @endauth
+                </ul>
+            </div>
+
+            <!-- Hashtags -->
+            <div style="min-width: 150px;">
+                <h4 style="margin: 0 0 1rem; color: #ffffff; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em;">Tendances</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    <span style="background: rgba(79,187,135,0.15); color: #4fbb87; padding: 0.4rem 0.8rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600;">#mode</span>
+                    <span style="background: rgba(79,187,135,0.15); color: #4fbb87; padding: 0.4rem 0.8rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600;">#vetements</span>
+                    <span style="background: rgba(79,187,135,0.15); color: #4fbb87; padding: 0.4rem 0.8rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600;">#style</span>
+                    <span style="background: rgba(79,187,135,0.15); color: #4fbb87; padding: 0.4rem 0.8rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600;">#looks</span>
+                    <span style="background: rgba(79,187,135,0.15); color: #4fbb87; padding: 0.4rem 0.8rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600;">#tendances</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Séparateur + copyright -->
+        <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
+            <p style="margin: 0; font-size: 0.84rem; color: #5a7a67;">
+                &copy; {{ date('Y') }} BellevieShop — Tous droits réservés.
+            </p>
+            <p style="margin: 0; font-size: 0.84rem; color: #5a7a67;">
+                Fait avec <i class="fas fa-heart" style="color: #ef4444;"></i> par HOUNTY Bignon
+            </p>
+        </div>
+    </div>
+</footer>
 @endsection
