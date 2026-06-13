@@ -29,14 +29,14 @@
         $type = $d['type'] ?? 'comment';
         $icon = $type === 'mention' ? 'fas fa-at' : ($type === 'reply' ? 'fas fa-reply' : 'fas fa-comment');
       @endphp
-      <div style="display:flex; gap: 1rem; align-items: flex-start; background: {{ $notif->read_at ? '#ffffff' : '#edf8ef' }}; border: 1px solid #e3f2e7; border-radius: 22px; padding: 1rem 1rem 1.1rem;">
-        <div style="width: 46px; height: 46px; border-radius: 50%; background: #dff3e6; display: grid; place-items: center; color: #2f7d4f; font-size: 1.1rem;"><i class="{{ $icon }}"></i></div>
+      <div class="notif-item-page {{ $notif->read_at ? '' : 'unread' }}" data-nid="{{ $notif->id }}" style="display:flex; gap: 1rem; align-items: flex-start; background: {{ $notif->read_at ? '#ffffff' : '#edf8ef' }}; border: 1px solid #e3f2e7; border-radius: 22px; padding: 1rem 1rem 1.1rem;">
+        <img src="{{ $d['from_avatar'] ?? 'https://ui-avatars.com/api/?name=U&background=74c69d&color=fff' }}" alt="" style="width:46px;height:46px;border-radius:50%;object-fit:cover;">
         <div style="flex: 1;">
-          <p style="margin: 0; font-weight: 700; color: #1f4334;">{{ $d['message'] ?? '' }}</p>
+          <p class="notif-msg" style="margin: 0; font-weight: 700; color: #1f4334;">{{ $d['message'] ?? '' }}</p>
           @if(!empty($d['content']))
             <p style="margin: 0.55rem 0 0; color: #53645a;">"{{ $d['content'] }}"</p>
           @endif
-          <p style="margin: 0.7rem 0 0; color: #6d7f74; font-size: 0.9rem;">{{ $notif->created_at->diffForHumans() }}</p>
+          <p class="notif-time" style="margin: 0.7rem 0 0; color: #6d7f74; font-size: 0.9rem;">{{ $notif->created_at->diffForHumans() }}</p>
         </div>
         <div style="display: grid; gap: 0.45rem; justify-items: end;">
           @if(!$notif->read_at)
