@@ -59,9 +59,15 @@
                 </div>
             </div>
             
-            @if($post->image_url)
-                <div style="min-height: 270px; overflow: hidden;">
-                    <img src="{{ $post->image_url }}" style="width: 100%; height: 100%; object-fit: cover;">
+            @php $postImages = $post->images ?? collect(); @endphp
+            @if($post->image_url || $postImages->isNotEmpty())
+                <div style="display: grid; grid-template-columns: repeat({{ min(1 + $postImages->count(), 3) }}, 1fr); gap: 3px; overflow: hidden;">
+                    @if($post->image_url)
+                        <img src="{{ $post->image_url }}" style="width:100%; height:270px; object-fit:cover;">
+                    @endif
+                    @foreach($postImages->take(3 - ($post->image_url ? 1 : 0)) as $img)
+                        <img src="{{ $img->url }}" style="width:100%; height:270px; object-fit:cover;">
+                    @endforeach
                 </div>
             @endif
             
