@@ -30,9 +30,11 @@ class PostController extends Controller
         abort_unless(auth()->user()->is_admin, 403);
 
         $request->validate([
-            'title'   => 'required|string|max:255',
-            'content' => 'required|string|min:20',
-            'image'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'title'         => 'required|string|max:255',
+            'content'       => 'required|string|min:20',
+            'image'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'extra_images'  => 'nullable|array|max:3',
+            'extra_images.*'=> 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         $image = null;
@@ -48,13 +50,29 @@ class PostController extends Controller
             }
         }
 
-        Post::create([
+        $post = Post::create([
             'user_id' => auth()->id(),
             'title'   => $request->input('title'),
             'content' => $request->input('content'),
             'image'   => $image,
             'status'  => 'published',
         ]);
+
+        // Sauvegarder les images supplémentaires
+        if ($request->hasFile('extra_images')) {
+            foreach ($request->file('extra_images') as $extra) {
+                if (!$extra || !$extra->isValid()) continue;
+                if (config('filesystems.default') === 'cloudinary') {
+                    $result = cloudinary()->upload($extra->getRealPath(), ['folder' => 'bellevieshop/posts']);
+                    $extraPath = $result->getSecurePath();
+                } else {
+                    $fileName = time() . '_' . uniqid() . '.' . $extra->extension();
+                    Storage::disk('public')->putFileAs('posts', $extra, $fileName);
+                    $extraPath = 'storage/posts/' . $fileName;
+                }
+                $post->images()->create(['image' => $extraPath]);
+            }
+        }
 
         if (auth()->user()->is_admin) {
             return redirect()->route('admin.posts')->with('success', 'Publication créée !');

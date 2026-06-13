@@ -21,8 +21,28 @@
         </div>
 
         <div style="margin-bottom: 1.75rem;">
-            <label style="display: block; margin-bottom: 0.65rem; font-weight: 700; font-size: 0.95rem; color: #2f533f;">Image (optionnel)</label>
-            <input type="file" name="image" style="width: 100%; font-size: 0.95rem; color: #5f7164;">
+            <label style="display: block; margin-bottom: 0.65rem; font-weight: 700; font-size: 0.95rem; color: #2f533f;">Image principale (optionnel)</label>
+            <input type="file" name="image" accept="image/*" style="width: 100%; font-size: 0.95rem; color: #5f7164;">
+        </div>
+
+        <div style="margin-bottom: 1.75rem;">
+            <label style="display: block; margin-bottom: 0.65rem; font-weight: 700; font-size: 0.95rem; color: #2f533f;">
+                Photos supplémentaires <span style="color:#6b7c6f; font-weight:400;">(jusqu'à 3, optionnel)</span>
+            </label>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                @for($i = 0; $i < 3; $i++)
+                <div style="flex:1; min-width:140px;">
+                    <label style="display:block; border: 2px dashed #c8e6cf; border-radius: 14px; cursor:pointer; overflow:hidden; aspect-ratio:1; background:#f7fbf8; position:relative; transition: border-color .2s;" onmouseover="this.style.borderColor='#2f7d4f'" onmouseout="this.style.borderColor='#c8e6cf'">
+                        <input type="file" name="extra_images[]" accept="image/*" style="display:none;" onchange="previewExtra(this, 'prev{{$i}}')">
+                        <img id="prev{{$i}}" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                        <div id="icon{{$i}}" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#6b9e78; gap:0.4rem; padding:1rem;">
+                            <i class="fas fa-image" style="font-size:1.6rem;"></i>
+                            <span style="font-size:0.78rem; text-align:center;">Photo {{ $i+1 }}</span>
+                        </div>
+                    </label>
+                </div>
+                @endfor
+            </div>
         </div>
 
         <button type="submit" style="width: 100%; background: linear-gradient(135deg, #2f7d4f, #5dca95); color: white; padding: 1rem; border: none; border-radius: 18px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
@@ -30,4 +50,18 @@
         </button>
     </form>
 </div>
+<script>
+function previewExtra(input, previewId) {
+    const img  = document.getElementById(previewId);
+    const icon = document.getElementById(previewId.replace('prev', 'icon'));
+    if (!input.files?.[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        img.src = e.target.result;
+        img.style.display = 'block';
+        if (icon) icon.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
 @endsection

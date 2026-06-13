@@ -16,10 +16,10 @@
                     <i class="fas fa-tshirt"></i> BellevieShop
                 </span>
                 <h1 style="font-size: 3rem; line-height: 1.05; color: #1f2332; margin: 0 0 1rem; font-weight: 800;">
-                    Découvrez les nouvelles collections et conseils mode de HOUNTY.
+                    Bienvenue dans mon univers mode
                 </h1>
                 <p style="max-width: 660px; color: #545762; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1.75rem;">
-                    HOUNTY publie ses plus belles sélections de vêtements et looks. Les clients peuvent lire, liker, commenter, commander et suivre chaque nouveauté BellevieShop.
+                    Explorez mes articles, découvrez les dernières tendances et échangez avec la communauté. Likez, commentez et commandez vos articles préférés en quelques clics.
                 </p>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
                     <span style="background: #fce8f1; color: #a12d59; padding: 0.65rem 1rem; border-radius: 999px; font-weight: 600;">#mode</span>
