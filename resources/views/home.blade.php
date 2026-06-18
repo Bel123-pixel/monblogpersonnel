@@ -61,12 +61,12 @@
             
             @php $postImages = $post->images ?? collect(); @endphp
             @if($post->image_url || $postImages->isNotEmpty())
-                <div style="display: grid; grid-template-columns: repeat({{ min(1 + $postImages->count(), 3) }}, 1fr); gap: 3px; overflow: hidden;">
+                <div style="display: grid; grid-template-columns: repeat({{ min(($post->image_url ? 1 : 0) + $postImages->count(), 3) }}, 1fr); gap: 3px; overflow: hidden;">
                     @if($post->image_url)
-                        <img src="{{ $post->image_url }}" style="width:100%; height:270px; object-fit:cover;">
+                        <img src="{{ $post->image_url }}" style="width:100%; max-height:400px; object-fit:contain; background:#f7fbf8;">
                     @endif
                     @foreach($postImages->take(3 - ($post->image_url ? 1 : 0)) as $img)
-                        <img src="{{ $img->url }}" style="width:100%; height:270px; object-fit:cover;">
+                        <img src="{{ $img->url }}" style="width:100%; max-height:400px; object-fit:contain; background:#f7fbf8;">
                     @endforeach
                 </div>
             @endif

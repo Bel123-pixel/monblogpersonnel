@@ -74,8 +74,16 @@
         </div>
 
         @if($post->image_url)
-            <div style="overflow: hidden;">
-                <img src="{{ $post->image_url }}" style="width: 100%; max-height: 420px; object-fit: cover;">
+            <div style="overflow: hidden; background:#f7fbf8;">
+                <img src="{{ $post->image_url }}" style="width: 100%; max-height: 600px; object-fit: contain; display:block;">
+            </div>
+        @endif
+
+        @if($post->images->isNotEmpty())
+            <div style="display:grid; grid-template-columns: repeat({{ min($post->images->count(), 3) }}, 1fr); gap: 3px; background:#f7fbf8;">
+                @foreach($post->images as $img)
+                    <img src="{{ $img->url }}" style="width:100%; max-height:400px; object-fit:contain; background:#f7fbf8; display:block;">
+                @endforeach
             </div>
         @endif
 
@@ -88,16 +96,7 @@
                 <span style="background: #fbe8ef; color: #a12d59; padding: 0.65rem 1rem; border-radius: 999px; font-size: 0.9rem;">#style</span>
             </div>
             @if($post->images->isNotEmpty())
-                <div style="margin-top:1.25rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
-                    @foreach($post->images as $img)
-                        <div style="width:calc(33% - 0.5rem); background:#fafafa; border-radius:12px; overflow:hidden; border:1px solid #eef6ee;">
-                            <img src="{{ $img->url }}" style="width:100%; height:140px; object-fit:cover; display:block;">
-                            @if($img->caption)
-                                <div style="padding:0.45rem 0.6rem; font-size:0.85rem; color:#495a4f;">{{ $img->caption }}</div>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
+                {{-- images déjà affichées en haut --}}
             @endif
         </div>
     </article>
