@@ -22,7 +22,6 @@
       </div>
       @endforeach
     </div>
-
     <div class="table-wrap">
       <div class="table-head-bar">
         <span><i class="fas fa-users" style="color:var(--blue)"></i> Nouveaux membres</span>
@@ -39,7 +38,7 @@
                   style="width:30px;height:30px;border-radius:50%;object-fit:cover">
                 <div>
                   <div style="font-weight:600;font-size:.86rem">{{ $u->name }}</div>
-                  <div style="font-size:.74rem;color:var(--muted)">@{{ $u->username }}</div>
+                  <div style="font-size:.74rem;color:var(--muted)">{{ $u->username }}</div>
                 </div>
               </div>
             </td>
@@ -55,7 +54,6 @@
         </tbody>
       </table>
     </div>
-
     <div class="table-wrap">
       <div class="table-head-bar">
         <span><i class="fas fa-file-lines" style="color:var(--blue)"></i> Publications récentes</span>
@@ -95,4 +93,3 @@
   </div>
 </div>
 @endsection
-
