@@ -29,7 +29,9 @@
             </div>
             <button type="submit" style="width: 100%; background: #1e293b; color: white; padding: 0.75rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Se connecter</button>
         </form>
-    </div>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="{{ route('password.request') }}" style="color: #64748b; font-size: 0.85rem; text-decoration: none;">Mot de passe oublié ?</a>
+        </div>
 
     <div class="register-card" style="flex: 1; min-width: 350px; background: #ffffff; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
         <h2 style="font-size: 1.5rem; font-weight: 800; color: #ff4757; margin-top:0;">🛍️ Créer un compte Client</h2>
