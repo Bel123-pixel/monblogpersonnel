@@ -40,7 +40,7 @@ class PostController extends Controller
             $file = $request->file('image');
             $fileName = time() . '_' . uniqid() . '.' . $file->extension();
             Storage::disk('public')->putFileAs('posts', $file, $fileName);
-            $imagePath = 'storage/posts/' . $fileName;
+            $imagePath = $fileName;
         }
 
         Post::create([
@@ -104,7 +104,7 @@ class PostController extends Controller
             $file = $request->file('image');
             $fileName = time() . '_' . uniqid() . '.' . $file->extension();
             Storage::disk('public')->putFileAs('posts', $file, $fileName);
-            $data['image'] = 'storage/posts/' . $fileName;
+            $data['image'] = $fileName;
         }
 
         $post->update($data);
