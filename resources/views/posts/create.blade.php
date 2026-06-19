@@ -22,20 +22,16 @@
 
         <div style="margin-bottom: 1.75rem;">
             <label style="display: block; margin-bottom: 0.75rem; font-weight: 700; font-size: 0.95rem; color: #2f533f;">
-                Photos <span style="color:#6b7c6f; font-weight:400;">(3 photos côte à côte, optionnel)</span>
+                Photo <span style="color:#6b7c6f; font-weight:400;">(optionnel)</span>
             </label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.65rem;">
-                @for($i = 0; $i < 3; $i++)
-                <label style="display:block; border: 2px dashed #c8e6cf; border-radius: 14px; cursor:pointer; overflow:hidden; aspect-ratio:1; background:#f7fbf8; position:relative; transition: border-color .2s;" onmouseover="this.style.borderColor='#2f7d4f'" onmouseout="this.style.borderColor='#c8e6cf'">
-                    <input type="file" name="extra_images[]" accept="image/*" style="display:none;" onchange="previewExtra(this, 'prev{{$i}}')">
-                    <img id="prev{{$i}}" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
-                    <div id="icon{{$i}}" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#6b9e78; gap:0.35rem; padding:0.75rem;">
-                        <i class="fas fa-camera" style="font-size:1.5rem;"></i>
-                        <span style="font-size:0.75rem; text-align:center; font-weight:600;">Photo {{ $i+1 }}</span>
-                    </div>
-                </label>
-                @endfor
-            </div>
+            <label style="display:block; border: 2px dashed #c8e6cf; border-radius: 14px; cursor:pointer; overflow:hidden; background:#f7fbf8; position:relative; transition: border-color .2s; min-height: 160px;" onmouseover="this.style.borderColor='#2f7d4f'" onmouseout="this.style.borderColor='#c8e6cf'">
+                <input type="file" name="image" accept="image/*" style="display:none;" onchange="previewSingle(this)">
+                <img id="prevSingle" src="" alt="" style="display:none; width:100%; max-height:300px; object-fit:contain; background:#f7fbf8;">
+                <div id="iconSingle" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:160px; color:#6b9e78; gap:0.5rem;">
+                    <i class="fas fa-camera" style="font-size:2rem;"></i>
+                    <span style="font-size:0.85rem; font-weight:600;">Cliquez pour ajouter une photo</span>
+                </div>
+            </label>
         </div>
 
         <button type="submit" style="width: 100%; background: linear-gradient(135deg, #2f7d4f, #5dca95); color: white; padding: 1rem; border: none; border-radius: 18px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
@@ -44,9 +40,9 @@
     </form>
 </div>
 <script>
-function previewExtra(input, previewId) {
-    const img  = document.getElementById(previewId);
-    const icon = document.getElementById(previewId.replace('prev', 'icon'));
+function previewSingle(input) {
+    const img  = document.getElementById('prevSingle');
+    const icon = document.getElementById('iconSingle');
     if (!input.files?.[0]) return;
     const reader = new FileReader();
     reader.onload = e => {

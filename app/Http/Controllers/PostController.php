@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class PostController extends Controller
 {
@@ -31,35 +30,28 @@ class PostController extends Controller
         abort_unless(auth()->user()->is_admin, 403);
 
         $request->validate([
-            'title'          => 'required|string|max:255',
-            'content'        => 'required|string|min:20',
-            'extra_images'   => 'nullable|array|max:3',
-            'extra_images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+            'title'   => 'required|string|max:255',
+            'content' => 'required|string|min:20',
+            'image'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
-        $extras = $request->file('extra_images') ?? [];
-        $allImages = array_values(array_filter($extras, fn($f) => $f && $f->isValid()));
+        $imagePath = null;
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $file = $request->file('image');
+            $fileName = time() . '_' . uniqid() . '.' . $file->extension();
+            Storage::disk('public')->putFileAs('posts', $file, $fileName);
+            $imagePath = 'storage/posts/' . $fileName;
+        }
 
-        $post = Post::create([
+        Post::create([
             'user_id' => auth()->id(),
             'title'   => $request->input('title'),
             'content' => $request->input('content'),
-            'image'   => null,
+            'image'   => $imagePath,
             'status'  => 'published',
         ]);
 
-        foreach ($allImages as $extra) {
-            $result = Cloudinary::upload($extra->getRealPath(), [
-                'folder' => 'bellevieshop/posts'
-            ]);
-            $post->images()->create(['image' => $result->getSecurePath()]);
-        }
-
-        if (auth()->user()->is_admin) {
-            return redirect()->route('admin.posts')->with('success', 'Publication créée !');
-        }
-
-        return redirect()->route('home');
+        return redirect()->route('admin.posts')->with('success', 'Publication créée !');
     }
 
     public function show(Post $post)
