@@ -100,11 +100,11 @@ class PostController extends Controller
 
         unset($data['image']);
 
-        if ($request->hasFile('image')) {
-            $result = Cloudinary::upload($request->file('image')->getRealPath(), [
-                'folder' => 'bellevieshop/posts'
-            ]);
-            $data['image'] = $result->getSecurePath();
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $file = $request->file('image');
+            $fileName = time() . '_' . uniqid() . '.' . $file->extension();
+            Storage::disk('public')->putFileAs('posts', $file, $fileName);
+            $data['image'] = 'storage/posts/' . $fileName;
         }
 
         $post->update($data);
