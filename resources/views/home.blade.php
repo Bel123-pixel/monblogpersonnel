@@ -52,7 +52,7 @@
         <article style="position: relative; background: #ffffff; border-radius: 26px; box-shadow: 0 18px 40px rgba(34, 97, 62, 0.08); margin-bottom: 2rem; overflow: hidden; border: 1px solid #e6f1e8;">
             <div style="position:absolute; top: 1rem; right: 1rem; width: 0; height: 0; border-left: 32px solid transparent; border-bottom: 32px solid #84cc16; opacity: 0.85;"></div>
             <div style="padding: 1.6rem 1.6rem 0; display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid #f3faf4; background: #f7fcf7;">
-                <img src="{{ $post->user->avatar_url ?? 'https://ui-avatars.com/api/?name=U&background=74c69d&color=fff' }}" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #bdeacb;">
+                <img src="{{ ($post->user->avatar_url ?? 'https://ui-avatars.com/api/?name=U&background=74c69d&color=fff') }}?v={{ $post->user->updated_at->timestamp }}" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #bdeacb;">
                 <div>
                     <div style="font-size: 0.95rem; font-weight: 700; color: #1f4734;">{{ $post->user->name ?? 'Auteur' }}</div>
                     <div style="font-size: 0.82rem; color: #6b7c6f;">{{ $post->created_at->diffForHumans() }}</div>
@@ -63,10 +63,10 @@
             @if($post->image_url || $postImages->isNotEmpty())
                 <div style="display: grid; grid-template-columns: repeat({{ min(($post->image_url ? 1 : 0) + $postImages->count(), 3) }}, 1fr); gap: 3px; overflow: hidden;">
                     @if($post->image_url)
-                        <img src="{{ $post->image_url }}" style="width:100%; max-height:400px; object-fit:contain; background:#f7fbf8;">
+                        <img src="{{ $post->image_url }}" style="width:100%; max-height:480px; object-fit:contain; background:#f7fbf8;">
                     @endif
                     @foreach($postImages->take(3 - ($post->image_url ? 1 : 0)) as $img)
-                        <img src="{{ $img->url }}" style="width:100%; max-height:400px; object-fit:contain; background:#f7fbf8;">
+                        <img src="{{ $img->url }}" style="width:100%; max-height:480px; object-fit:contain; background:#f7fbf8;">
                     @endforeach
                 </div>
             @endif
@@ -146,10 +146,7 @@ function submitLike(postId, el) {
 
 <footer style="background: linear-gradient(135deg, #1a3a2a 0%, #0f2318 100%); color: #b6d9c3; margin-top: 3rem; padding: 3rem 2rem 1.5rem;">
     <div style="max-width: 1120px; margin: 0 auto;">
-
         <div style="display: flex; flex-wrap: wrap; gap: 2.5rem; justify-content: space-between; margin-bottom: 2.5rem;">
-
-            <!-- Logo + description -->
             <div style="flex: 1; min-width: 220px; max-width: 340px;">
                 <a href="{{ route('home') }}" style="display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; margin-bottom: 1rem;">
                     <i class="fas fa-shopping-bag" style="color: #4fbb87; font-size: 1.4rem;"></i>
@@ -159,12 +156,10 @@ function submitLike(postId, el) {
                     La boutique mode de HOUNTY — découvrez les dernières collections, looks et conseils style au quotidien.
                 </p>
             </div>
-
-            <!-- Liens rapides -->
             <div style="min-width: 150px;">
                 <h4 style="margin: 0 0 1rem; color: #ffffff; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em;">Navigation</h4>
                 <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem;">
-                    <li><a href="{{ route('home') }}" style="color: #8ab59a; text-decoration: none; font-size: 0.9rem; transition: color .2s;" onmouseover="this.style.color='#4fbb87'" onmouseout="this.style.color='#8ab59a'"><i class="fas fa-home" style="width:16px;"></i> Accueil</a></li>
+                    <li><a href="{{ route('home') }}" style="color: #8ab59a; text-decoration: none; font-size: 0.9rem;" onmouseover="this.style.color='#4fbb87'" onmouseout="this.style.color='#8ab59a'"><i class="fas fa-home" style="width:16px;"></i> Accueil</a></li>
                     @auth
                         <li><a href="{{ route('notifications.index') }}" style="color: #8ab59a; text-decoration: none; font-size: 0.9rem;" onmouseover="this.style.color='#4fbb87'" onmouseout="this.style.color='#8ab59a'"><i class="fas fa-bell" style="width:16px;"></i> Notifications</a></li>
                         <li><a href="{{ route('profile', auth()->user()->username) }}" style="color: #8ab59a; text-decoration: none; font-size: 0.9rem;" onmouseover="this.style.color='#4fbb87'" onmouseout="this.style.color='#8ab59a'"><i class="fas fa-user" style="width:16px;"></i> Mon profil</a></li>
@@ -173,8 +168,6 @@ function submitLike(postId, el) {
                     @endauth
                 </ul>
             </div>
-
-            <!-- Hashtags -->
             <div style="min-width: 150px;">
                 <h4 style="margin: 0 0 1rem; color: #ffffff; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em;">Tendances</h4>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
@@ -185,17 +178,10 @@ function submitLike(postId, el) {
                     <span style="background: rgba(79,187,135,0.15); color: #4fbb87; padding: 0.4rem 0.8rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600;">#tendances</span>
                 </div>
             </div>
-
         </div>
-
-        <!-- Séparateur + copyright -->
         <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
-            <p style="margin: 0; font-size: 0.84rem; color: #5a7a67;">
-                &copy; {{ date('Y') }} BellevieShop — Tous droits réservés.
-            </p>
-            <p style="margin: 0; font-size: 0.84rem; color: #5a7a67;">
-                Fait avec <i class="fas fa-heart" style="color: #ef4444;"></i> par HOUNTY Bignon
-            </p>
+            <p style="margin: 0; font-size: 0.84rem; color: #5a7a67;">&copy; {{ date('Y') }} BellevieShop — Tous droits réservés.</p>
+            <p style="margin: 0; font-size: 0.84rem; color: #5a7a67;">Fait avec <i class="fas fa-heart" style="color: #ef4444;"></i> par HOUNTY Bignon</p>
         </div>
     </div>
 </footer>
