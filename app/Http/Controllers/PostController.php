@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class PostController extends Controller
 {
@@ -30,17 +31,14 @@ class PostController extends Controller
         abort_unless(auth()->user()->is_admin, 403);
 
         $request->validate([
-            'title'         => 'required|string|max:255',
-            'content'       => 'required|string|min:20',
-            'extra_images'  => 'nullable|array|max:3',
-            'extra_images.*'=> 'image|mimes:jpg,jpeg,png,webp|max:5120',
+            'title'          => 'required|string|max:255',
+            'content'        => 'required|string|min:20',
+            'extra_images'   => 'nullable|array|max:3',
+            'extra_images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
-        // La première photo devient l'image principale
-        $image = null;
         $extras = $request->file('extra_images') ?? [];
-        $allImages = array_filter($extras, fn($f) => $f && $f->isValid());
-        $allImages = array_values($allImages);
+        $allImages = array_values(array_filter($extras, fn($f) => $f && $f->isValid()));
 
         $post = Post::create([
             'user_id' => auth()->id(),
@@ -50,17 +48,11 @@ class PostController extends Controller
             'status'  => 'published',
         ]);
 
-        // Sauvegarder les 3 photos dans PostImage
         foreach ($allImages as $extra) {
-            if (config('filesystems.default') === 'cloudinary') {
-                $result = cloudinary()->upload($extra->getRealPath(), ['folder' => 'bellevieshop/posts']);
-                $extraPath = $result->getSecurePath();
-            } else {
-                $fileName = time() . '_' . uniqid() . '.' . $extra->extension();
-                Storage::disk('public')->putFileAs('posts', $extra, $fileName);
-                $extraPath = 'storage/posts/' . $fileName;
-            }
-            $post->images()->create(['image' => $extraPath]);
+            $result = Cloudinary::upload($extra->getRealPath(), [
+                'folder' => 'bellevieshop/posts'
+            ]);
+            $post->images()->create(['image' => $result->getSecurePath()]);
         }
 
         if (auth()->user()->is_admin) {
@@ -92,7 +84,7 @@ class PostController extends Controller
         }
 
         return response()->json([
-            'liked' => $liked,
+            'liked'       => $liked,
             'likes_count' => $post->likes()->count()
         ]);
     }
@@ -106,6 +98,7 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         abort_unless(auth()->user()->is_admin, 403);
+
         $data = $request->validate([
             'title'   => 'required|string|max:255',
             'content' => 'required|string|min:10',
@@ -113,30 +106,13 @@ class PostController extends Controller
             'status'  => 'nullable|in:draft,published',
         ]);
 
-        // Ne pas écraser l'image existante si aucune nouvelle photo n'est envoyée
         unset($data['image']);
 
         if ($request->hasFile('image')) {
-            // Supprimer l'ancienne image
-            if ($post->image) {
-                if (str_starts_with($post->image, 'uploads/')) {
-                    $old = public_path($post->image);
-                    if (file_exists($old)) @unlink($old);
-                } elseif (str_starts_with($post->image, 'http')) {
-                    // Cloudinary — on laisse, on uploade juste la nouvelle
-                } else {
-                    Storage::disk('public')->delete('posts/' . $post->image);
-                }
-            }
-
-            if (config('filesystems.default') === 'cloudinary') {
-                $result = cloudinary()->upload($request->file('image')->getRealPath(), ['folder' => 'bellevieshop/posts']);
-                $data['image'] = $result->getSecurePath();
-            } else {
-                $filename = 'post_' . time() . '.' . $request->file('image')->extension();
-                Storage::disk('public')->putFileAs('posts', $request->file('image'), $filename);
-                $data['image'] = $filename;
-            }
+            $result = Cloudinary::upload($request->file('image')->getRealPath(), [
+                'folder' => 'bellevieshop/posts'
+            ]);
+            $data['image'] = $result->getSecurePath();
         }
 
         $post->update($data);
@@ -146,17 +122,6 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
-        if ($post->image) {
-            if (str_starts_with($post->image, 'uploads/')) {
-                $old = public_path($post->image);
-                if (file_exists($old)) {
-                    @unlink($old);
-                }
-            } else {
-                Storage::delete('public/posts/' . $post->image);
-            }
-        }
-
         $post->delete();
 
         if (auth()->user()->is_admin) {

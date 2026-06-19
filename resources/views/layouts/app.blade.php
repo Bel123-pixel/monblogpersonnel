@@ -6,6 +6,7 @@
     <title>@yield('title', 'BellevieShop')</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script src="{{ asset('js/app.js') }}" defer></script>
     <style>
         body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f4fbf6; margin: 0; padding: 0; }
         .navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.96); padding: 1rem 2rem; box-shadow: 0 10px 35px rgba(72, 187, 120, 0.08); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(12px); }
@@ -138,7 +139,6 @@
         @yield('content')
     </main>
 
-    <script src="{{ asset('js/app.js') }}" defer></script>
     <script defer>
         window.addEventListener('load', () => {
             @auth
