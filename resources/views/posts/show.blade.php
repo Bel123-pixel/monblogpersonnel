@@ -24,12 +24,6 @@
                             🛒 Commander
                         </button>
                     @endif
-                @else
-                    <button onclick="openOrderModal('{{ $post->slug }}')" style="background: #2f7d4f; color: white; border: none; padding: 0.85rem 1.25rem; border-radius: 999px; font-weight: 700; cursor: pointer;">
-                        🛒 Commander
-                    </button>
-                @endauth
-                @auth
                     @if(auth()->user()->is_admin)
                         <a href="{{ route('posts.edit', $post) }}" style="background: #f3f4f6; color: #1f2937; border: none; padding: 0.85rem 1rem; border-radius: 999px; font-weight: 700; text-decoration: none;">✏️ Modifier</a>
                         <form action="{{ route('posts.destroy', $post) }}" method="POST" style="margin:0;">
@@ -38,6 +32,10 @@
                             <button type="submit" onclick="return confirm('Supprimer cette publication ?')" style="background: #fee2e2; color: #991b1b; border: none; padding: 0.85rem 1rem; border-radius: 999px; font-weight: 700; cursor: pointer;">🗑️ Supprimer</button>
                         </form>
                     @endif
+                @else
+                    <button onclick="openOrderModal('{{ $post->slug }}')" style="background: #2f7d4f; color: white; border: none; padding: 0.85rem 1.25rem; border-radius: 999px; font-weight: 700; cursor: pointer;">
+                        🛒 Commander
+                    </button>
                 @endauth
             </div>
 

@@ -48,65 +48,57 @@
         @endauth
     </div>
 
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
     @forelse($posts as $post)
-        <article style="position: relative; background: #ffffff; border-radius: 26px; box-shadow: 0 18px 40px rgba(34, 97, 62, 0.08); margin-bottom: 2rem; overflow: hidden; border: 1px solid #e6f1e8;">
-            <div style="position:absolute; top: 1rem; right: 1rem; width: 0; height: 0; border-left: 32px solid transparent; border-bottom: 32px solid #84cc16; opacity: 0.85;"></div>
-            <div style="padding: 1.6rem 1.6rem 0; display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid #f3faf4; background: #f7fcf7;">
-                <img src="{{ ($post->user->avatar_url ?? 'https://ui-avatars.com/api/?name=U&background=74c69d&color=fff') }}?v={{ $post->user->updated_at->timestamp }}" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #bdeacb;">
+        <article style="position: relative; background: #ffffff; border-radius: 26px; box-shadow: 0 18px 40px rgba(34, 97, 62, 0.08); overflow: hidden; border: 1px solid #e6f1e8; display: flex; flex-direction: column;">
+            <div style="padding: 1rem 1rem 0; display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid #f3faf4; background: #f7fcf7;">
+                <img src="{{ $post->user->avatar_url ?? 'https://ui-avatars.com/api/?name=U&background=74c69d&color=fff' }}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #bdeacb;">
                 <div>
-                    <div style="font-size: 0.95rem; font-weight: 700; color: #1f4734;">{{ $post->user->name ?? 'Auteur' }}</div>
-                    <div style="font-size: 0.82rem; color: #6b7c6f;">{{ $post->created_at->diffForHumans() }}</div>
+                    <div style="font-size: 0.88rem; font-weight: 700; color: #1f4734;">{{ $post->user->name ?? 'Auteur' }}</div>
+                    <div style="font-size: 0.76rem; color: #6b7c6f;">{{ $post->created_at->diffForHumans() }}</div>
                 </div>
             </div>
-            
+
             @php $postImages = $post->images ?? collect(); @endphp
             @if($post->image_url || $postImages->isNotEmpty())
-                <div style="display: grid; grid-template-columns: repeat({{ min(($post->image_url ? 1 : 0) + $postImages->count(), 3) }}, 1fr); gap: 3px; overflow: hidden;">
+                <div style="display: grid; grid-template-columns: repeat({{ min(($post->image_url ? 1 : 0) + $postImages->count(), 3) }}, 1fr); gap: 2px; overflow: hidden;">
                     @if($post->image_url)
-                        <img src="{{ $post->image_url }}" style="width:100%; max-height:480px; object-fit:contain; background:#f7fbf8;">
+                        <img src="{{ $post->image_url }}" style="width:100%; max-height:220px; object-fit:contain; background:#f7fbf8;">
                     @endif
                     @foreach($postImages->take(3 - ($post->image_url ? 1 : 0)) as $img)
-                        <img src="{{ $img->url }}" style="width:100%; max-height:480px; object-fit:contain; background:#f7fbf8;">
+                        <img src="{{ $img->url }}" style="width:100%; max-height:220px; object-fit:contain; background:#f7fbf8;">
                     @endforeach
                 </div>
             @endif
-            
-            <div style="padding: 1.6rem;">
-                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
-                    <span style="background: #fbe8ef; color: #a12d59; padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.82rem;">#mode</span>
-                    <span style="background: #fbe8ef; color: #a12d59; padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.82rem;">#vetements</span>
-                    <span style="background: #fbe8ef; color: #a12d59; padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.82rem;">#style</span>
-                </div>
-                <h3 style="margin: 0 0 1rem; font-size: 1.55rem; color: #1f3f2c;">{{ $post->title }}</h3>
-                <p style="margin: 0 0 1.5rem; color: #516156; font-size: 1rem; line-height: 1.7;">{{ \Illuminate\Support\Str::limit($post->content, 220) }}</p>
-                
-                <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 1rem; color: #4f6f57; font-weight: 600;">
+
+            <div style="padding: 1rem; flex: 1; display: flex; flex-direction: column;">
+                <h3 style="margin: 0 0 0.6rem; font-size: 1.1rem; color: #1f3f2c;">{{ $post->title }}</h3>
+                <p style="margin: 0 0 1rem; color: #516156; font-size: 0.88rem; line-height: 1.6; flex:1;">{{ \Illuminate\Support\Str::limit($post->content, 120) }}</p>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: space-between; border-top: 1px solid #f0f7f1; padding-top: 0.75rem; margin-top: auto;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; color: #4f6f57; font-weight: 600; font-size: 0.85rem;">
                         <span><i class="fas fa-heart"></i> <span class="like-count-{{ $post->id }}">{{ $post->likes ? $post->likes->count() : 0 }}</span></span>
                         <span><i class="fas fa-comments"></i> {{ $post->comments->count() }}</span>
                     </div>
-                    <div style="display:flex; gap:0.75rem; flex-wrap: wrap;">
+                    <div style="display:flex; gap:0.5rem;">
                         @auth
-                            <button onclick="submitLike({{ $post->id }}, this)" style="border:none;background:#edf9ef;color:#1f5c38;padding:0.85rem 1rem;border-radius:14px;cursor:pointer;font-weight:700;">
-                                <i class="fas fa-heart"></i> J'aime
+                            <button onclick="submitLike({{ $post->id }}, this)" style="border:none;background:#edf9ef;color:#1f5c38;padding:0.5rem 0.75rem;border-radius:10px;cursor:pointer;font-weight:700;font-size:0.82rem;">
+                                <i class="fas fa-heart"></i>
                             </button>
-                        @else
-                            <a href="{{ route('login') }}" style="border:none;background:#edf9ef;color:#1f5c38;padding:0.85rem 1rem;border-radius:14px;font-weight:700;text-decoration:none;">
-                                <i class="fas fa-heart"></i> Connexion pour liker
-                            </a>
                         @endauth
-                        <a href="{{ route('posts.show', $post) }}" style="background:#1f5c38;color:#fff;padding:0.85rem 1rem;border-radius:14px;font-weight:700;text-decoration:none;">
-                            <i class="fas fa-comment"></i> Commenter
+                        <a href="{{ route('posts.show', $post) }}" style="background:#1f5c38;color:#fff;padding:0.5rem 0.75rem;border-radius:10px;font-weight:700;text-decoration:none;font-size:0.82rem;">
+                            <i class="fas fa-comment"></i> Voir
                         </a>
                     </div>
                 </div>
             </div>
         </article>
     @empty
-        <div style="text-align: center; padding: 4rem 2rem; background: #ffffff; border-radius: 24px; box-shadow: 0 18px 40px rgba(38, 121, 70, 0.08);">
+        <div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem; background: #ffffff; border-radius: 24px;">
             <p style="color: #5a6a5f; margin: 0; font-size: 1.05rem;">Aucun article disponible pour le moment.</p>
         </div>
     @endforelse
+    </div>
 </div>
 
 <script>
