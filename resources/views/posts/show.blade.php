@@ -74,15 +74,15 @@
         </div>
 
         @if($post->image_url)
-            <div style="overflow: hidden; background:#f7fbf8;">
-                <img src="{{ $post->image_url }}" style="width: 100%; max-height: 600px; object-fit: contain; display:block;">
+            <div style="background:#f7fbf8;">
+                <img src="{{ $post->image_url }}" style="width: 100%; height: auto; object-fit: contain; display: block;">
             </div>
         @endif
 
         @if($post->images->isNotEmpty())
             <div style="display:grid; grid-template-columns: repeat({{ min($post->images->count(), 3) }}, 1fr); gap: 3px; background:#f7fbf8;">
                 @foreach($post->images as $img)
-                    <img src="{{ $img->url }}" style="width:100%; max-height:400px; object-fit:contain; background:#f7fbf8; display:block;">
+                    <img src="{{ $img->url }}" style="width:100%; height:auto; object-fit:contain; background:#f7fbf8; display:block;">
                 @endforeach
             </div>
         @endif
@@ -95,9 +95,6 @@
                 <span style="background: #fbe8ef; color: #a12d59; padding: 0.65rem 1rem; border-radius: 999px; font-size: 0.9rem;">#vetements</span>
                 <span style="background: #fbe8ef; color: #a12d59; padding: 0.65rem 1rem; border-radius: 999px; font-size: 0.9rem;">#style</span>
             </div>
-            @if($post->images->isNotEmpty())
-                {{-- images déjà affichées en haut --}}
-            @endif
         </div>
     </article>
 
@@ -107,7 +104,6 @@
         @auth
             <form method="POST" action="{{ route('comments.store', $post) }}" style="margin-bottom: 2rem;">
                 @csrf
-                <!-- Bulle de citation : commentaire auquel on répond -->
                 <div id="reply-preview" style="display:none; background:#eaf5ee; border-left:4px solid #2f7d4f; border-radius:12px; padding:0.75rem 1rem; margin-bottom:0.65rem; position:relative;">
                     <div style="font-size:0.8rem; color:#2f7d4f; font-weight:700; margin-bottom:0.25rem;" id="reply-preview-author"></div>
                     <div style="font-size:0.9rem; color:#3a5042; line-height:1.5; white-space:pre-wrap; word-break:break-word;" id="reply-preview-body"></div>
@@ -119,7 +115,6 @@
                             placeholder="Écrivez un commentaire... Tapez @ pour mentionner quelqu'un"
                             style="width: 100%; padding: 1rem; border-radius: 18px; border: 1px solid #d9e9da; font-family: inherit; font-size: 1rem; box-sizing: border-box;"
                             required></textarea>
-                        <!-- Liste d'autocomplétion -->
                         <div id="mention-list" style="display:none; position:absolute; bottom: calc(100% + 4px); left:0; background:#fff; border:1px solid #d1d5db; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:999; min-width:220px; overflow:hidden;"></div>
                     </div>
                     <button type="submit" style="background: #2f7d4f; color: white; border: none; padding: 0.95rem 1.35rem; border-radius: 18px; font-weight: 700; cursor: pointer; align-self: flex-start;">Envoyer</button>
@@ -138,7 +133,7 @@
                     <div style="display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.65rem; align-items: flex-start;">
                         <div>
                             <div style="font-weight: 700; color: #1f4334;">{{ $comment->user->name ?? 'Client' }}</div>
-                            <div style="font-size: 0.84rem; color: #6c7a6d;">{{ $comment->created_at ? $comment->created_at->diffForHumans() : 'À l’instant' }}</div>
+                            <div style="font-size: 0.84rem; color: #6c7a6d;">{{ $comment->created_at ? $comment->created_at->diffForHumans() : 'À l\'instant' }}</div>
                         </div>
                         @if($comment->user_id == 1 || ($comment->user?->is_admin ?? false))
                             <span style="background: #2f7d4f; color: #fff; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.78rem;">Vendeur</span>
@@ -148,7 +143,7 @@
                     <div style="text-align: right;">
                         <a href="#"
                            class="reply-btn"
-                           data-author="{{ '@'  . ($comment->user->name ?? 'Utilisateur') }}"
+                           data-author="{{ '@' . ($comment->user->name ?? 'Utilisateur') }}"
                            data-body="{{ Str::limit(strip_tags($comment->body), 120) }}"
                            style="color: #2f7d4f; font-size: 0.9rem; font-weight: 700; text-decoration: none;">Répondre</a>
                     </div>
@@ -161,25 +156,9 @@
 </div>
 
 <style>
-.mention-link {
-    color: #2f7d4f;
-    font-weight: 700;
-    text-decoration: none;
-    background: #edf9ef;
-    padding: 0 4px;
-    border-radius: 4px;
-}
+.mention-link { color: #2f7d4f; font-weight: 700; text-decoration: none; background: #edf9ef; padding: 0 4px; border-radius: 4px; }
 .mention-link:hover { text-decoration: underline; }
-.mention-item {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.6rem 1rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    color: #1f3f2c;
-    border-bottom: 1px solid #f0f5ef;
-}
+.mention-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1rem; cursor: pointer; font-size: 0.9rem; color: #1f3f2c; border-bottom: 1px solid #f0f5ef; }
 .mention-item:hover { background: #f0fbf1; }
 .mention-item img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 </style>
@@ -190,13 +169,10 @@ function openReply(authorMention, commentBody) {
     const preview = document.getElementById('reply-preview');
     const previewAuthor = document.getElementById('reply-preview-author');
     const previewBody   = document.getElementById('reply-preview-body');
-
     if (!area || !preview) return;
-
     previewAuthor.textContent = authorMention;
     previewBody.textContent   = commentBody;
     preview.style.display     = 'block';
-
     area.value = authorMention + ' ';
     area.focus();
     area.setSelectionRange(area.value.length, area.value.length);
@@ -227,28 +203,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const textarea   = document.getElementById('comment-area');
     const list       = document.getElementById('mention-list');
     if (!textarea || !list) return;
-
     let mentionStart = -1;
-
     textarea.addEventListener('input', function () {
         const val    = textarea.value;
         const cursor = textarea.selectionStart;
-
-        // Chercher le dernier @ avant le curseur
         const before = val.substring(0, cursor);
         const atIdx  = before.lastIndexOf('@');
-
         if (atIdx === -1) { hideMentions(); return; }
-
         const query = before.substring(atIdx + 1);
-
-        // Pas d'espace dans la query
         if (/\s/.test(query)) { hideMentions(); return; }
-
         mentionStart = atIdx;
-
         if (query.length === 0) { hideMentions(); return; }
-
         fetch(`{{ route('mention.search') }}?q=${encodeURIComponent(query)}`)
             .then(r => r.json())
             .then(users => {
@@ -256,14 +221,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 list.innerHTML = users.map(u =>
                     `<div class="mention-item" data-username="${u.username}">
                         <img src="${u.avatar_url}" alt="">
-                        <div>
-                            <strong>${u.name}</strong>
-                            <span style="color:#6b7c6f; font-size:0.8rem;"> @${u.username}</span>
-                        </div>
+                        <div><strong>${u.name}</strong><span style="color:#6b7c6f; font-size:0.8rem;"> @${u.username}</span></div>
                     </div>`
                 ).join('');
                 list.style.display = 'block';
-
                 list.querySelectorAll('.mention-item').forEach(item => {
                     item.addEventListener('mousedown', function (e) {
                         e.preventDefault();
@@ -278,20 +239,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
     });
-
-    textarea.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') hideMentions();
-    });
-
-    document.addEventListener('click', function (e) {
-        if (!list.contains(e.target) && e.target !== textarea) hideMentions();
-    });
-
-    function hideMentions() {
-        list.style.display = 'none';
-        list.innerHTML = '';
-        mentionStart = -1;
-    }
+    textarea.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideMentions(); });
+    document.addEventListener('click', function (e) { if (!list.contains(e.target) && e.target !== textarea) hideMentions(); });
+    function hideMentions() { list.style.display = 'none'; list.innerHTML = ''; mentionStart = -1; }
 })();
 </script>
 @endsection

@@ -26,7 +26,7 @@
                   <a href="{{ route('profile', $u->username) }}" style="font-weight:600;font-size:.86rem;color:var(--ink2)">
                     {{ $u->name }}
                   </a>
-                  <div style="font-size:.74rem;color:var(--muted)">@{{ $u->username }}</div>
+                  <div style="font-size:.74rem;color:var(--muted)">{{ $u->username }}</div>
                 </div>
               </div>
             </td>
@@ -71,4 +71,3 @@
   </div>
 </div>
 @endsection
-
