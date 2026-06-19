@@ -52,12 +52,17 @@ class Post extends Model
             return $this->image;
         }
 
+        // Chemin complet storage/posts/fichier.ext (ancien format)
+        if (str_starts_with($this->image, 'storage/')) {
+            return asset($this->image);
+        }
+
         // Old uploads stored directly in public/uploads/...
         if (str_starts_with($this->image, 'uploads/')) {
             return asset($this->image);
         }
 
-        // Filename in storage/app/public/posts
+        // Filename seulement — dans storage/app/public/posts
         return asset('storage/posts/' . $this->image);
     }
 
