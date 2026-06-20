@@ -90,10 +90,14 @@ Route::get('/forgot-password', function () {
 
 Route::post('/forgot-password', function (Request $request) {
     $request->validate(['email' => 'required|email']);
-    $status = Password::sendResetLink($request->only('email'));
-    return $status === Password::RESET_LINK_SENT
-        ? back()->with('status', 'Un lien de réinitialisation a été envoyé à votre email.')
-        : back()->withErrors(['email' => __($status)]);
+    try {
+        $status = Password::sendResetLink($request->only('email'));
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('status', 'Un lien de réinitialisation a été envoyé à votre email.')
+            : back()->withErrors(['email' => __($status)]);
+    } catch (\Exception $e) {
+        return back()->withErrors(['email' => 'Impossible d\'envoyer l\'email. Vérifiez votre adresse ou réessayez plus tard.']);
+    }
 })->middleware('guest')->name('password.email');
 
 Route::get('/reset-password/{token}', function (string $token) {
