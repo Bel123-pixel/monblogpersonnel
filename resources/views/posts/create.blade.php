@@ -10,6 +10,14 @@
     <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
         @csrf
 
+        @if ($errors->any())
+            <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                @foreach ($errors->all() as $error)
+                    <p style="margin: 0.25rem 0; font-size: 0.9rem;">• {{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
         <div style="margin-bottom: 1.5rem;">
             <label style="display: block; margin-bottom: 0.65rem; font-weight: 700; font-size: 0.95rem; color: #2f533f;">Titre de l'article</label>
             <input type="text" name="title" placeholder="Ex: Nouvelle robe d'été éthique" style="width: 100%; padding: 1rem; border-radius: 16px; border: 1px solid #d7e9dd; font-size: 1rem; box-sizing: border-box;" required>
